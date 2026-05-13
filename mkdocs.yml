@@ -1,0 +1,195 @@
+site_name: Runbooks Linux
+
+theme:
+  name: material
+  language: es
+
+  features:
+    - content.code.copy
+
+extra_css:
+  - stylesheets/extra.css
+
+markdown_extensions:
+  - admonition
+  - fenced_code
+  - tables
+  - pymdownx.details
+  - pymdownx.superfences
+
+nav:
+
+  # =========================================================
+  # BOOT
+  # =========================================================
+
+  - 🚀 Boot:
+
+      - Instalación:
+          - Instalación Linux: 01-boot/00-instalacion/instalar-linux.md
+
+      - GRUB:
+          - Reinstalar GRUB: 01-boot/01-grub/reinstalar-grub.md
+          - Recuperar GRUB: 01-boot/01-grub/recuperar-grub.md
+
+      - Kernel Boot:
+          - Cambiar Kernel: 01-boot/02-kernel-boot/cambiar-kernel.md
+
+      - Initramfs:
+          - Regenerar Initramfs modo Normal: 01-boot/03-initramfs/regenerar-initramfs-mod-normal.md
+          - Regenerar Initramfs modo Emergencia: 01-boot/03-initramfs/regenerar-initramfs-mod-emergencia.md 
+      - Systemd:
+          - Analizar Boot: 01-boot/04-systemd/analizar-boot.md
+
+      - Recuperación:
+          - Recuperar Root: 01-boot/05-recuperacion/recuperar-root.md
+
+      - Troubleshooting:
+          - Kernel Panic: 01-boot/06-troubleshooting/kernel-panic.md
+
+  # =========================================================
+  # KERNEL
+  # =========================================================
+
+  - ⚙️ Kernel:
+      - Overview: 02-kernel/index.md
+
+  # =========================================================
+  # FILESYSTEM
+  # =========================================================
+
+  - 🗂️ Filesystem:
+
+      - Creación:
+          - Creación Filesystem: 03-filesystem/01-creacion/creacion-filesystem.md
+
+      - Montaje:
+          - Montaje Filesystem: 03-filesystem/02-montaje/montaje-filesystem.md
+
+      - Resize:
+          - Resize Filesystem: 03-filesystem/03-resize/resize-filesystem.md
+
+      - Reparación:
+          - Reparación Filesystem: 03-filesystem/04-reparacion/reparacion-filesystem.md
+
+      - Swap:
+          - Gestión Swap: 03-filesystem/05-swap/swap.md
+
+      - FSTAB:
+          - Configuración FSTAB: 03-filesystem/06-fstab/fstab.md
+
+      - Permisos ACL:
+          - Permisos ACL: 03-filesystem/07-permisos-acl/permisos-acl.md
+
+      - NFS / CIFS:
+          - NFS CIFS: 03-filesystem/08-nfs-cifs/nfs-cifs.md
+
+      - Troubleshooting:
+          - Troubleshooting Filesystem: 03-filesystem/09-troubleshooting/troubleshooting-filesystem.md
+
+      - Checklists:
+          - Checklists: 03-filesystem/10-checklists/checklists.md
+
+
+  # =========================================================
+  # STORAGE
+  # =========================================================
+
+  - 💾 Storage:
+
+      - 🔀 Multipath:
+          - Instalar y Configurar Multipath: 04-storage/01-multipath/instalar-configurar-multipath.md
+          - Boot SAN con Multipath: 04-storage/01-multipath/boot-san-multipath.md
+          - Detectar LUNs: 04-storage/01-multipath/detectar-luns.md
+          - Resize LUN Online: 04-storage/01-multipath/resize-lun-online.md
+          - Eliminar LUN: 04-storage/01-multipath/eliminar-lun.md
+          - Validar Failover: 04-storage/01-multipath/validar-failover.md
+          - Limpiar Dispositivos Huérfanos: 04-storage/01-multipath/limpiar-dispositivos-huerfanos.md
+          - Troubleshooting Multipath: 04-storage/01-multipath/troubleshooting-multipath.md
+
+      - 📦 LVM:
+          - Crear PV VG LV: 04-storage/02-lvm/crear-pv-vg-lv.md
+          - Extender LV: 04-storage/02-lvm/extender-lv.md
+          - Reducir LV: 04-storage/02-lvm/reducir-lv.md
+          - Resize Online LVM: 04-storage/02-lvm/resize-online-lvm.md
+          - Renombrar VG LV: 04-storage/02-lvm/renombrar-vg-lv.md
+          - Eliminar LVM: 04-storage/02-lvm/eliminar-lvm.md
+          - Migración con PVMOVE: 04-storage/02-lvm/migracion-pvmove.md
+          - Troubleshooting LVM: 04-storage/02-lvm/troubleshooting-lvm.md
+
+      - 🧱 Particionado:
+          - Crear Particiones GPT: 04-storage/03-particionado/crear-particiones-gpt.md
+          - Crear Particiones MBR: 04-storage/03-particionado/crear-particiones-mbr.md
+          - Expandir Partición: 04-storage/03-particionado/expandir-particion.md
+          - Validar Tabla de Particiones: 04-storage/03-particionado/validar-tabla-particiones.md
+          - Troubleshooting Particiones: 04-storage/03-particionado/troubleshooting-particiones.md
+
+      - 🌐 SAN:
+          - Rescan HBA FC: 04-storage/05-san/rescan-hba-fc.md
+          - Validar WWPN: 04-storage/05-san/validar-wwpn.md
+          - Validar Paths FC: 04-storage/05-san/validar-paths-fc.md
+          - Validar Storage Presentation: 04-storage/05-san/validar-storage-presentation.md
+          - Troubleshooting SAN: 04-storage/05-san/troubleshooting-san.md
+
+      - 🚨 Troubleshooting:
+          - Disco No Visible: 04-storage/07-troubleshooting/disco-no-visible.md
+          - LUN Duplicada: 04-storage/07-troubleshooting/lun-duplicada.md
+          - Paths Failed: 04-storage/07-troubleshooting/paths-failed.md
+          - Multipath Corrupto: 04-storage/07-troubleshooting/multipath-corrupto.md
+          - VG No Detectado: 04-storage/07-troubleshooting/vg-no-detectado.md
+          - Filesystem Readonly: 04-storage/07-troubleshooting/filesystem-readonly.md
+          - Kernel Detecta Disco No Multipath: 04-storage/07-troubleshooting/kernel-detecta-disco-no-multipath.md 
+
+
+
+  - 🌐 Network:
+      - Overview: 05-network/index.md
+
+  - 🔄 Procesos:
+      - Overview: 06-procesos/index.md
+
+  - 👤 Usuarios:
+      - Overview: 07-usuarios/index.md
+
+  - 🔒 Seguridad:
+      - Overview: 08-seguridad/index.md
+
+  - ⚙️ Servicios:
+      - Overview: 09-servicios/index.md
+
+  - 📊 Logs & Monitoring:
+      - Overview: 10-logs-monitoring/index.md
+
+  - 🗄️ Backup & Recovery:
+      - Overview: 11-backup-recovery/index.md
+
+  - 📈 Performance:
+      - Overview: 12-performance/index.md
+
+  - 🤖 Automatización:
+      - Overview: 13-automatizacion/index.md
+
+  - 🌍 Conectividad Remota:
+      - Overview: 14-conectividad-remota/index.md
+
+  - 📦 Paquetes:
+      - Overview: 15-paquetes/index.md
+
+  - 🕒 Tiempo del Sistema:
+      - Overview: 16-tiempo-sistema/index.md
+
+  - 🖥️ Hardware:
+      - Overview: 17-hardware/index.md
+
+  - 🧪 Virtualización:
+      - Overview: 18-virtualizacion/index.md
+
+  - 📦 Contenedores:
+      - Overview: 19-contenedores/index.md
+
+  - 🚨 Troubleshooting:
+      - Overview: 20-troubleshooting/index.md
+
+  - 🎓 Red Hat EX200:
+      - Overview: 21-RedHat-Certificacion-EX200/index.md
+      - Práctica 1: 21-RedHat-Certificacion-EX200/Practica_1.md
