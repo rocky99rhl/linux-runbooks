@@ -58,37 +58,34 @@ nav:
   # FILESYSTEM
   # =========================================================
 
-  - 🗂️ Filesystem:
+  - 📁 Filesystem:
 
-      - Creación:
-          - Creación Filesystem: 03-filesystem/01-creacion/creacion-filesystem.md
+    - 📦 Operación:
+        - Montar y Desmontar Filesystem: 03-filesystem/operacion/montar-desmontar-filesystem.md
+        - Configurar fstab: 03-filesystem/operacion/configurar-fstab.md
+        - Verificar UUID y Labels: 03-filesystem/operacion/verificar-uuid-labels.md
+        - Remontar Filesystem RO-RW: 03-filesystem/operacion/remontar-filesystem-ro-rw.md
+        - Montaje NFS: 03-filesystem/operacion/montaje-nfs.md
 
-      - Montaje:
-          - Montaje Filesystem: 03-filesystem/02-montaje/montaje-filesystem.md
+    - 📈 Expansión:
+        - Expandir Filesystem XFS: 03-filesystem/expansion/expandir-filesystem-xfs.md
+        - Expandir Filesystem EXT4: 03-filesystem/expansion/expandir-filesystem-ext4.md
+        - Expandir Filesystem con LVM: 03-filesystem/expansion/expandir-filesystem-lvm.md
+        - Rescan de Discos: 03-filesystem/expansion/rescan-discos.md
 
-      - Resize:
-          - Resize Filesystem: 03-filesystem/03-resize/resize-filesystem.md
+    - 🛠️  Recuperación:
+        - Reparar Filesystem XFS: 03-filesystem/recuperacion/reparar-filesystem-xfs.md
+        - Reparar Filesystem EXT4: 03-filesystem/recuperacion/reparar-filesystem-ext4.md
+        - Recuperar Filesystem desde Emergencia: 03-filesystem/recuperacion/recuperar-filesystem-emergencia.md
+        - Reparar fstab: 03-filesystem/recuperacion/reparar-fstab.md
+        - Filesystem ReadOnly (RO): 03-filesystem/recuperacion/filesystem-readonly.md
 
-      - Reparación:
-          - Reparación Filesystem: 03-filesystem/04-reparacion/reparacion-filesystem.md
-
-      - Swap:
-          - Gestión Swap: 03-filesystem/05-swap/swap.md
-
-      - FSTAB:
-          - Configuración FSTAB: 03-filesystem/06-fstab/fstab.md
-
-      - Permisos ACL:
-          - Permisos ACL: 03-filesystem/07-permisos-acl/permisos-acl.md
-
-      - NFS / CIFS:
-          - NFS CIFS: 03-filesystem/08-nfs-cifs/nfs-cifs.md
-
-      - Troubleshooting:
-          - Troubleshooting Filesystem: 03-filesystem/09-troubleshooting/troubleshooting-filesystem.md
-
-      - Checklists:
-          - Checklists: 03-filesystem/10-checklists/checklists.md
+    - 🔍 Diagnóstico:
+        - Diagnóstico de Espacio: 03-filesystem/diagnostico/diagnostico-espacio.md
+        - Encontrar Archivos Grandes: 03-filesystem/diagnostico/encontrar-archivos-grandes.md
+        - Verificar Inodes: 03-filesystem/diagnostico/verificar-inodes.md
+        - Verificar Integridad Filesystem: 03-filesystem/diagnostico/verificar-integridad-filesystem.md
+        - Diagnóstico de I/O: 03-filesystem/diagnostico/diagnostico-io.md
 
 
   # =========================================================
