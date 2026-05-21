@@ -12,7 +12,7 @@
         <link rel="prev" href="../../01-multipath/troubleshooting-multipath/">
       
       
-        <link rel="next" href="../extender-lv/">
+        <link rel="next" href="../extender-pv-vg-lv/">
       
       
         
@@ -64,6 +64,11 @@
     <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
     <label class="md-overlay" for="__drawer"></label>
     <div data-md-component="skip">
+      
+        
+        <a href="#runbook" class="md-skip">
+          Saltar a contenido
+        </a>
       
     </div>
     <div data-md-component="announce">
@@ -2155,6 +2160,8 @@
       <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
       
       
+        
+      
       
       <a href="./" class="md-nav__link md-nav__link--active">
         
@@ -2185,14 +2192,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../extender-lv/" class="md-nav__link">
+      <a href="../extender-pv-vg-lv/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Extender LV
+    Extender PV VG LV
   
 
     
@@ -2623,34 +2630,6 @@
 
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../05-san/rescan-hba-fc/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Rescan HBA FC
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
             
               
                 
@@ -4469,6 +4448,8 @@
   
   
   
+    
+  
   
 </nav>
                   </div>
@@ -4485,9 +4466,136 @@
 
 
 
-  <h1>Crear PV VG LV</h1>
+<h1 id="runbook">🧰 Runbook</h1>
+<h1 id="crear-pv-vg-y-lv-con-multipath-en-rocky-linux">Crear PV, VG y LV con Multipath en Rocky Linux</h1>
+<p>&nbsp;</p>
+<h1 id="objetivo">📌 Objetivo</h1>
+<p>Crear un Physical Volume (PV), Volume Group (VG) y Logical Volume (LV) utilizando discos presentados desde cabina SAN Hitachi mediante Multipath en Rocky Linux / RHEL.</p>
+<hr />
+<h1 id="requisitos">🧱 Requisitos</h1>
+<ul>
+<li>Acceso root o privilegios sudo.</li>
+<li>Multipath instalado y habilitado.</li>
+<li>Serial de discos presentados desde cabina SAN.</li>
+<li>Acceso por consola o SSH.</li>
+</ul>
+<p><small><em>Ejemplo de seriales de discos:</em><br>
+<em>60060e8012b170005040b17000000930 -&gt; 16GB</em><br>
+<em>60060e8012b170005040b17000000931 -&gt; 16GB</em></small></p>
+<hr />
+<p>&nbsp;</p>
+<h1 id="inicio-del-procedimiento">🚀 Inicio del Procedimiento</h1>
+<h3 id="paso-1-validar-mapth-de-los-nuevos-discos-asignados">Paso 1 — Validar <code>mapth</code> de los nuevos discos asignados</h3>
+<div class="highlight"><pre><span></span><code>multipath<span class="w"> </span>-ll
+</code></pre></div>
+<p><small><em>Ejemplo esperado:</em></small></p>
+<div class="highlight"><pre><span></span><code>mpatha (360060e8012b170005040b17000000930) dm-10 HITACHI,OPEN-V
+size=16G features=&#39;0&#39; hwhandler=&#39;0&#39; wp=rw
 
+mpathb (360060e8012b170005040b17000000931) dm-11 HITACHI,OPEN-V
+size=16G features=&#39;0&#39; hwhandler=&#39;0&#39; wp=rw
+</code></pre></div>
+<div class="admonition info">
+<p class="admonition-title">Info</p>
+<p>Se debe aplicar el runbook <code>Validar Storage Presentation</code> antes de visualizar los nuevos discos fisicos.</p>
+</div>
+<hr />
+<p>&nbsp;</p>
+<h3 id="paso-2-validar-discos-visibles-en-el-sistema">Paso 2 — Validar discos visibles en el sistema</h3>
+<div class="highlight"><pre><span></span><code>lsblk
+</code></pre></div>
+<hr />
+<h3 id="paso-3-crear-physical-volumes-pv">Paso 3 — Crear Physical Volumes (PV)</h3>
+<div class="highlight"><pre><span></span><code>pvcreate<span class="w"> </span>/dev/mapper/mpatha<span class="w"> </span>
+pvcreate<span class="w"> </span>/dev/mapper/mpathb
+</code></pre></div>
+<hr />
+<p>&nbsp;</p>
+<h3 id="paso-4-validar-pv-creados">Paso 4 — Validar PV creados</h3>
+<div class="highlight"><pre><span></span><code>pvs
+</code></pre></div>
+<hr />
+<p>&nbsp;</p>
+<h3 id="paso-5-crear-volume-group-vg">Paso 5 — Crear Volume Group (VG)</h3>
+<p><small><em>Ejemplo utilizando el nombre <code>vg_datos</code> para el Volume Group.</em><br>
+<em>El segundo comando crece un VG ya existente.</em></small></p>
+<div class="highlight"><pre><span></span><code>vgcreate<span class="w"> </span>vg_datos<span class="w"> </span>/dev/mapper/mpatha<span class="w"> </span>
 
+vgextend<span class="w"> </span>vg_datos<span class="w"> </span>/dev/mapper/mpathb
+</code></pre></div>
+<hr />
+<p>&nbsp;</p>
+<h3 id="paso-6-validar-vg-creado">Paso 6 — Validar VG creado</h3>
+<div class="highlight"><pre><span></span><code>root@laboratorio01:~#<span class="w"> </span>vgs
+<span class="w">  </span>VG<span class="w">         </span><span class="c1">#PV #LV #SN Attr   VSize   VFree </span>
+<span class="w">  </span>vd_db_data<span class="w">   </span><span class="m">1</span><span class="w">   </span><span class="m">1</span><span class="w">   </span><span class="m">0</span><span class="w"> </span>wz--n-<span class="w"> </span>&lt;<span class="m">37</span>.70g<span class="w">     </span><span class="m">0</span><span class="w"> </span>
+<span class="w">  </span>vg_datos<span class="w">     </span><span class="m">2</span><span class="w">   </span><span class="m">0</span><span class="w">   </span><span class="m">0</span><span class="w"> </span>wz--n-<span class="w">  </span><span class="m">31</span>.99g<span class="w"> </span><span class="m">31</span>.99g
+<span class="w">  </span>vg_system<span class="w">    </span><span class="m">1</span><span class="w">   </span><span class="m">9</span><span class="w">   </span><span class="m">0</span><span class="w"> </span>wz--n-<span class="w">  </span><span class="m">79</span>.00g<span class="w">     </span><span class="m">0</span><span class="w"> </span>
+<span class="w">  </span>vg_web_app<span class="w">   </span><span class="m">1</span><span class="w">   </span><span class="m">1</span><span class="w">   </span><span class="m">0</span><span class="w"> </span>wz--n-<span class="w">  </span><span class="m">10</span>.00g<span class="w">     </span><span class="m">0</span><span class="w"> </span>
+root@laboratorio01:~#<span class="w"> </span>
+</code></pre></div>
+<hr />
+<p>&nbsp;</p>
+<h3 id="paso-7-crear-logical-volume-lv">Paso 7 — Crear Logical Volume (LV)</h3>
+<p><small><em>Ejemplo creando un LV de 13G llamado <code>lv_app</code></em></small> </p>
+<div class="highlight"><pre><span></span><code>root@laboratorio01:~#<span class="w"> </span>lvcreate<span class="w"> </span>-L<span class="w"> </span>13G<span class="w"> </span>-n<span class="w"> </span>lv_app<span class="w"> </span>vg_datos
+<span class="w">  </span>Logical<span class="w"> </span>volume<span class="w"> </span><span class="s2">&quot;lv_app&quot;</span><span class="w"> </span>created.
+
+root@laboratorio01:~#<span class="w"> </span>lvs
+<span class="w">  </span>LV<span class="w">            </span>VG<span class="w">         </span>Attr<span class="w">       </span>LSize<span class="w">   </span>Pool<span class="w"> </span>Origin<span class="w"> </span>Data%<span class="w">  </span>Meta%<span class="w">  </span>Move<span class="w"> </span>Log<span class="w"> </span>Cpy%Sync<span class="w"> </span>Convert
+<span class="w">  </span>var_lib_mysql<span class="w"> </span>vd_db_data<span class="w"> </span>-wi-ao----<span class="w"> </span>&lt;<span class="m">37</span>.70g<span class="w">                                                    </span>
+<span class="w">  </span>lv_app<span class="w">        </span>vg_datos<span class="w">   </span>-wi-a-----<span class="w">  </span><span class="m">13</span>.00g<span class="w">                                                    </span>
+<span class="w">  </span>bladelogic<span class="w">    </span>vg_system<span class="w">  </span>-wi-ao----<span class="w">   </span><span class="m">5</span>.00g<span class="w">                                                    </span>
+<span class="w">  </span>home<span class="w">          </span>vg_system<span class="w">  </span>-wi-ao----<span class="w">   </span><span class="m">5</span>.00g<span class="w">                                                    </span>
+<span class="w">  </span>opt<span class="w">           </span>vg_system<span class="w">  </span>-wi-ao----<span class="w">   </span><span class="m">5</span>.00g<span class="w">                                                    </span>
+<span class="w">  </span>root<span class="w">          </span>vg_system<span class="w">  </span>-wi-ao----<span class="w">  </span><span class="m">20</span>.00g<span class="w">                                                    </span>
+<span class="w">  </span>seguridad<span class="w">     </span>vg_system<span class="w">  </span>-wi-ao----<span class="w">   </span><span class="m">5</span>.00g<span class="w">                                                    </span>
+<span class="w">  </span>swap<span class="w">          </span>vg_system<span class="w">  </span>-wi-ao----<span class="w">   </span><span class="m">4</span>.00g<span class="w">                                                    </span>
+<span class="w">  </span>tmp<span class="w">           </span>vg_system<span class="w">  </span>-wi-ao----<span class="w">   </span><span class="m">5</span>.00g<span class="w">                                                    </span>
+<span class="w">  </span>var<span class="w">           </span>vg_system<span class="w">  </span>-wi-ao----<span class="w">  </span><span class="m">20</span>.00g<span class="w">                                                    </span>
+<span class="w">  </span>var_log<span class="w">       </span>vg_system<span class="w">  </span>-wi-ao----<span class="w">  </span><span class="m">10</span>.00g<span class="w">                                                    </span>
+<span class="w">  </span>var_www<span class="w">       </span>vg_web_app<span class="w"> </span>-wi-ao----<span class="w">  </span><span class="m">10</span>.00g<span class="w">                                                    </span>
+root@laboratorio01:~#
+</code></pre></div>
+<hr />
+<p>&nbsp;</p>
+<h1 id="validaciones-post-instalacion">🔍 Validaciones Post-instalación</h1>
+<hr />
+<h3 id="validar-physical-volumes-volumen-groups-y-logial-volumes">Validar Physical Volumes, Volumen Groups y Logial Volumes.</h3>
+<div class="highlight"><pre><span></span><code>pvs
+vgs
+lvs
+</code></pre></div>
+<p>&nbsp;</p>
+<div class="admonition tip">
+<p class="admonition-title">Mejores Prácticas: Segmentación de Almacenamiento LVM</p>
+<p>La segmentación óptima en escenarios reales de producción requiere aislar las cargas críticas en Grupos de Volúmenes (VGs) independientes:</p>
+<ul>
+<li><strong>Bases de Datos</strong><ul>
+<li><code>vg_db_bin</code>: Exclusivo para archivos binarios del motor.</li>
+<li><code>vg_db_data</code>: Datos transaccionales en discos flash rápidos de baja latencia.</li>
+<li><code>vg_db_redo</code>: Logs de transacciones para proteger las escrituras secuenciales.</li>
+</ul>
+</li>
+<li><strong>Servidores Web</strong><ul>
+<li><code>vg_web_bin</code>: Código ejecutable y despliegues de la aplicación.</li>
+<li><code>vg_web_logs</code>: Logs de acceso para evitar caídas del sistema por saturación de espacio.</li>
+</ul>
+</li>
+<li><strong>Programas Producto (Control-M, NetBackup, Patrol)</strong><ul>
+<li><code>vg_infra</code>: Agentes de monitoreo, respaldo y automatización. Permite aplicar parches y aislar el almacenamiento de infraestructura sin afectar las aplicaciones de negocio.</li>
+</ul>
+</li>
+</ul>
+</div>
+<hr />
+<h1 id="referencias">📚 Referencias</h1>
+<ul>
+<li>Red Hat LVM Administration Guide</li>
+<li>Red Hat Multipath Guide</li>
+</ul>
+<hr />
+<h1 id="fin-del-procedimiento">✅ Fin del Procedimiento</h1>
 
 
 

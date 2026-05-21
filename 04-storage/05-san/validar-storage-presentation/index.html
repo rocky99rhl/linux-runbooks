@@ -65,6 +65,11 @@
     <label class="md-overlay" for="__drawer"></label>
     <div data-md-component="skip">
       
+        
+        <a href="#runbook" class="md-skip">
+          Saltar a contenido
+        </a>
+      
     </div>
     <div data-md-component="announce">
       
@@ -2175,14 +2180,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../../02-lvm/extender-lv/" class="md-nav__link">
+      <a href="../../02-lvm/extender-pv-vg-lv/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Extender LV
+    Extender PV VG LV
   
 
     
@@ -2623,34 +2628,6 @@
   
   
     <li class="md-nav__item">
-      <a href="../rescan-hba-fc/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Rescan HBA FC
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
       <a href="../validar-wwpn/" class="md-nav__link">
         
   
@@ -2712,6 +2689,8 @@
       
       <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
       
+      
+        
       
       
       <a href="./" class="md-nav__link md-nav__link--active">
@@ -4469,6 +4448,8 @@
   
   
   
+    
+  
   
 </nav>
                   </div>
@@ -4485,9 +4466,83 @@
 
 
 
-  <h1>Validar Storage Presentation</h1>
+<h1 id="runbook">🧰 Runbook</h1>
+<h1 id="validar-storage-presentation">Validar Storage Presentation</h1>
+<h1 id="objetivo">📌 Objetivo</h1>
+<p>Validar que los discos presentados desde cabina SAN o storage externo sean visibles correctamente en el sistema operativo Rocky Linux / RHEL, verificando paths, WWID, multipath y disponibilidad de dispositivos.</p>
+<hr />
+<h1 id="requisitos">🧱 Requisitos</h1>
+<ul>
+<li>Acceso root o privilegios sudo.</li>
+<li>Multipath instalado y habilitado.</li>
+<li>Discos presentados desde cabina SAN.</li>
+<li>
+<p>Número de serie o WWID de cada disco.<br />
+  Ejemplo:<code>naa.60060e8012b170005040b17000000930</code></p>
+</li>
+<li>
+<p>Acceso por consola o SSH.</p>
+</li>
+</ul>
+<hr />
+<h1 id="inicio-del-procedimiento">🚀 Inicio del Procedimiento</h1>
+<h3 id="paso-1-reescanear-discos-a-nivel-de-so">Paso 1 — Reescanear discos a nivel de SO</h3>
+<div class="highlight"><pre><span></span><code>/usr/bin/rescan-scsi-bus.sh<span class="w"> </span>-a<span class="w"> </span>-m
+</code></pre></div>
+<hr />
+<h3 id="paso-2-listar-numeros-de-serie-de-discos-detectados">Paso 2 — Listar números de serie de discos detectados</h3>
+<div class="highlight"><pre><span></span><code>ls<span class="w"> </span>-l<span class="w"> </span>/dev/disk/by-id/
+</code></pre></div>
+<hr />
+<h3 id="paso-3-limpiar-mapas-huerfanos-o-fallidos-opcional">Paso 3 — Limpiar mapas huérfanos o fallidos (Opcional)</h3>
+<div class="highlight"><pre><span></span><code>multipath<span class="w"> </span>-F
+</code></pre></div>
+<hr />
+<h3 id="paso-4-detectar-y-crear-nuevos-dispositivos-multipath">Paso 4 — Detectar y crear nuevos dispositivos multipath</h3>
+<div class="highlight"><pre><span></span><code>multipath
+</code></pre></div>
+<hr />
+<h3 id="paso-5-recargar-servicio-multipathd">Paso 5 — Recargar servicio multipathd</h3>
+<div class="highlight"><pre><span></span><code>systemctl<span class="w"> </span>reload<span class="w"> </span>multipathd
+</code></pre></div>
+<hr />
+<h1 id="validaciones-post-instalacion">🔍 Validaciones Post-instalación</h1>
+<h3 id="validar-dispositivos-multipath">Validar dispositivos multipath</h3>
+<div class="highlight"><pre><span></span><code>multipath<span class="w"> </span>-ll
+</code></pre></div>
+<p>Ejemplo esperado:</p>
+<div class="highlight"><pre><span></span><code>[root@laboratorio01 ~]# multipath -ll
 
+mpathb (360060e8012b170005040b17000000930) dm-41 HITACHI,OPEN-V
+size=1.0T features=&#39;0&#39; hwhandler=&#39;0&#39; wp=rw
+`-+- policy=&#39;service-time 0&#39; prio=1 status=active
+  |- 5:0:0:1  sdc  8:32   active ready running
+  |- 10:0:0:1 sdj  8:144  active ready running
 
+[root@laboratorio01 ~]#
+</code></pre></div>
+<p>Confirmar:</p>
+<ul>
+<li>Paths activos.</li>
+<li>Estado <code>active ready running</code>.</li>
+<li>WWID visibles correctamente.</li>
+</ul>
+<hr />
+<h3 id="validar-estado-de-paths">Validar estado de paths</h3>
+<div class="highlight"><pre><span></span><code>multipathd<span class="w"> </span>show<span class="w"> </span>paths
+</code></pre></div>
+<hr />
+<h3 id="validar-dispositivos-detectados">Validar dispositivos detectados</h3>
+<div class="highlight"><pre><span></span><code>lsblk
+</code></pre></div>
+<hr />
+<h3 id="validar-logs-relacionados-a-storage">Validar logs relacionados a storage</h3>
+<div class="highlight"><pre><span></span><code>journalctl<span class="w"> </span>-xe<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>-Ei<span class="w"> </span><span class="s2">&quot;multipath|scsi|sd&quot;</span>
+</code></pre></div>
+<hr />
+<h1 id="referencias">📚 Referencias</h1>
+<hr />
+<h1 id="fin-del-procedimiento">✅ Fin del Procedimiento</h1>
 
 
 
