@@ -106,7 +106,7 @@ nav:
 
       - 📦 LVM:
           - Crear PV VG LV: 04-storage/02-lvm/crear-pv-vg-lv.md
-          - Extender LV: 04-storage/02-lvm/extender-lv.md
+          - Extender PV VG LV: 04-storage/02-lvm/extender-pv-vg-lv.md
           - Reducir LV: 04-storage/02-lvm/reducir-lv.md
           - Resize Online LVM: 04-storage/02-lvm/resize-online-lvm.md
           - Renombrar VG LV: 04-storage/02-lvm/renombrar-vg-lv.md
@@ -122,7 +122,6 @@ nav:
           - Troubleshooting Particiones: 04-storage/03-particionado/troubleshooting-particiones.md
 
       - 🌐 SAN:
-          - Rescan HBA FC: 04-storage/05-san/rescan-hba-fc.md
           - Validar WWPN: 04-storage/05-san/validar-wwpn.md
           - Validar Paths FC: 04-storage/05-san/validar-paths-fc.md
           - Validar Storage Presentation: 04-storage/05-san/validar-storage-presentation.md
