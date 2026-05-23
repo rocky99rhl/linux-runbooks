@@ -15,7 +15,6 @@ Cada runbook sigue una estructura estándar para asegurar ejecución controlada 
 - **Pre-checks** → Validaciones previas antes de ejecutar cambios  
 - **Ejecución** → Pasos detallados del procedimiento  
 - **Validación** → Confirmación de que el cambio fue exitoso  
-- **Rollback** → Acciones para revertir en caso de fallo  
 
 ---
 
@@ -54,4 +53,4 @@ Este proyecto está orientado a:
 
 ## 🤝 Contribuciones
 
-Si deseas aportar mejoras o nuevos runbooks, puedes contactar para colaborar en el proyecto.
+Si deseas aportar mejoras o nuevos runbooks, puedes contactarnos en: runbooks_linux@hotmail.com

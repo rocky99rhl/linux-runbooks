@@ -1,5 +1,5 @@
 # 🧰 Runbook
-# Regenerar Initramfs en Rocky Linux (Modo Emergencia)
+# Regenerar Initramfs en Rocky Linux (Modo Initramfs)
 
 # 📌 Objetivo
 
