@@ -12,7 +12,7 @@
         <link rel="prev" href="../../02-kernel-boot/cambiar-kernel/">
       
       
-        <link rel="next" href="../regenerar-initramfs-mod-emergencia/">
+        <link rel="next" href="../regenerar-initramfs-mod-initramfs/">
       
       
         
@@ -611,14 +611,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../regenerar-initramfs-mod-emergencia/" class="md-nav__link">
+      <a href="../regenerar-initramfs-mod-initramfs/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Regenerar Initramfs modo Emergencia
+    Regenerar Initramfs modo Initramfs
   
 
     
@@ -4525,9 +4525,11 @@ blacklist vfat
 </div>
 <hr />
 <h3 id="paso-4-regenerar-initramfs">Paso 4 — Regenerar initramfs</h3>
-<h3 id="metodo-recomendado-con-dracut">Método recomendado con dracut</h3>
-<div class="highlight"><pre><span></span><code>dracut<span class="w"> </span>-f
+<p><div class="highlight"><pre><span></span><code>dracut<span class="w"> </span>-f
 </code></pre></div>
+<small> <em>Crear archivo oculto para forzar el re-etiquetado completo de contextos SELinux en el siguiente reinicio del sistema.</em> </small> 
+<div class="highlight"><pre><span></span><code>touch<span class="w"> </span>/.autorelabel
+</code></pre></div></p>
 <hr />
 <h3 id="paso-5-reiniciar-servidor">Paso 5 — Reiniciar servidor</h3>
 <div class="highlight"><pre><span></span><code>reboot
