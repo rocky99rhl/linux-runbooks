@@ -37,7 +37,7 @@ nav:
 
       - Initramfs:
           - Regenerar Initramfs modo Normal: 01-boot/03-initramfs/regenerar-initramfs-mod-normal.md
-          - Regenerar Initramfs modo Emergencia: 01-boot/03-initramfs/regenerar-initramfs-mod-emergencia.md 
+          - Regenerar Initramfs modo Initramfs: 01-boot/03-initramfs/regenerar-initramfs-mod-initramfs.md 
       - Systemd:
           - Analizar Boot: 01-boot/04-systemd/analizar-boot.md
 

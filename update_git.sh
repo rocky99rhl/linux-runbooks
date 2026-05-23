@@ -1,5 +1,3 @@
-cd ~/runbooks_linux
-sleep 10
 git add .
 sleep 10
 git commit -m "update runbooks"

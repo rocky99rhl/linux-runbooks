@@ -103,10 +103,13 @@ cp /boot/initramfs-$(uname -r).img /boot/initramfs-$(uname -r).img.bak
 
 ### Paso 4 — Regenerar initramfs
 
-### Método recomendado con dracut
 
 ```bash
 dracut -f
+```
+<small> *Crear archivo oculto para forzar el re-etiquetado completo de contextos SELinux en el siguiente reinicio del sistema.* </small> 
+```bash
+touch /.autorelabel
 ```
 
 ---

@@ -47,7 +47,7 @@ Ejemplo:
 &nbsp;
 ---
 
-### Paso 3 — Arrancar en modo emergencia
+### Paso 3 — Arrancar en Modo Initramfs
 
 Presionar:
 
@@ -160,6 +160,13 @@ cp /boot/initramfs-$(uname -r).img /boot/initramfs-$(uname -r).img.bak
 ```bash
 dracut -f
 ```
+
+<small> *Crear archivo oculto para forzar el re-etiquetado completo de contextos SELinux en el siguiente reinicio del sistema.* </small> 
+```bash
+touch /.autorelabel
+```
+
+
 
 ---
 
