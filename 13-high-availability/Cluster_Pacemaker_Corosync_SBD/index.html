@@ -23,7 +23,7 @@
     
     
       
-        <title>Cluster - Runbooks Linux</title>
+        <title>Cluster Pacemaker - Runbooks Linux</title>
       
     
     
@@ -102,7 +102,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Cluster
+              Cluster Pacemaker
             
           </span>
         </div>
@@ -3723,7 +3723,7 @@
   <span class="md-ellipsis">
     
   
-    Cluster
+    Cluster Pacemaker
   
 
     
@@ -6463,6 +6463,7 @@ code {
 <p>&nbsp;</p>
 <h1 id="objetivo">📌 Objetivo</h1>
 <p>Implementar un Cluster de Alta Disponibilidad (HA) en Rocky Linux 10 utilizando Pacemaker, Corosync, PCS y SBD, con almacenamiento compartido iSCSI, protección contra Split-Brain mediante STONITH y administración automática de recursos críticos mediante Failover Activo/Pasivo.</p>
+<p>&nbsp;</p>
 <p>La solución permitirá:</p>
 <ul>
 <li>Alta disponibilidad de aplicaciones críticas.</li>
@@ -6473,6 +6474,7 @@ code {
 <li>Exposición de servicios mediante IP Virtual flotante.</li>
 </ul>
 <hr />
+<p>&nbsp;</p>
 <h1 id="requisitos">🧱 Requisitos</h1>
 <ul>
 <li>Rocky Linux 10 o RHEL 10 instalado.</li>
@@ -6506,27 +6508,23 @@ code {
 <td>10.0.0.13</td>
 </tr>
 <tr>
-<td>SAN iSCSI</td>
+<td>nodo4.laboratorio</td>
 <td>10.0.0.20</td>
 </tr>
 </tbody>
 </table>
+<p><small>El nodo4 es la maquina que simula la cabina SAN </small></p>
 <hr />
 <p>&nbsp;</p>
 <h1 id="inicio-del-procedimiento">🚀 Inicio del Procedimiento</h1>
-<h1 id="fase-1-configuracion-de-red-y-resolucion-de-nombres">FASE 1 — Configuración de Red y Resolución de Nombres</h1>
-<h3 id="paso-1-configurar-hostname">Paso 1 — Configurar Hostname</h3>
-<p>Nodo 1:</p>
-<div class="highlight"><pre><span></span><code>hostnamectl<span class="w"> </span>set-hostname<span class="w"> </span>nodo1.laboratorio
-</code></pre></div>
-<p>Nodo 2:</p>
-<div class="highlight"><pre><span></span><code>hostnamectl<span class="w"> </span>set-hostname<span class="w"> </span>nodo2.laboratorio
-</code></pre></div>
-<p>Nodo 3:</p>
-<div class="highlight"><pre><span></span><code>hostnamectl<span class="w"> </span>set-hostname<span class="w"> </span>nodo3.laboratorio
-</code></pre></div>
+<h2 id="fase-1-configuracion-de-red-y-resolucion-de-nombres">FASE 1 — Configuración de Red y Resolución de Nombres</h2>
+<p>&nbsp;</p>
+<p>Antes de iniciar la Fase 1 de este procedimiento, se asume que las máquinas virtuales ya fueron desplegadas y configuradas conforme a lo establecido en el runbook Configuración de Laboratorio.</p>
+<p>Esta validación previa garantiza que todos los componentes, dependencias y parámetros requeridos para el entorno se encuentran correctamente preparados, permitiendo ejecutar el laboratorio de Alta Disponibilidad de manera controlada y sin contratiempos derivados de configuraciones pendientes o incompletas.</p>
+<p>En caso de que alguna de las configuraciones descritas en el runbook no haya sido aplicada, se recomienda completarla antes de continuar con las siguientes fases del procedimiento.</p>
 <hr />
-<h3 id="paso-2-configurar-resolucion-local">Paso 2 — Configurar resolución local</h3>
+<p>&nbsp;</p>
+<h3 id="paso-1-configurar-resolucion-local">Paso 1 — Configurar resolución local</h3>
 <p>Editar:</p>
 <div class="highlight"><pre><span></span><code>vi<span class="w"> </span>/etc/hosts
 </code></pre></div>
@@ -6536,34 +6534,41 @@ code {
 10.0.0.13 nodo3.laboratorio nodo3
 10.0.0.20 nodo4.laboratorio nodo4
 </code></pre></div>
+<p><small>Aplicar en: nodo1, nodo2 y nodo3</small></p>
 <hr />
-<h3 id="paso-3-validar-resolucion-dns-local">Paso 3 — Validar resolución DNS local</h3>
+<p>&nbsp;</p>
+<h3 id="paso-3-validar-resolucion-dns-local-nodo1-nodo2-y-nodo3">Paso 3 — Validar resolución DNS local - <strong><code>nodo1, nodo2 y nodo3</code></strong></h3>
 <div class="highlight"><pre><span></span><code>ping<span class="w"> </span>-c<span class="w"> </span><span class="m">2</span><span class="w"> </span>nodo1.laboratorio
 ping<span class="w"> </span>-c<span class="w"> </span><span class="m">2</span><span class="w"> </span>nodo2.laboratorio
 ping<span class="w"> </span>-c<span class="w"> </span><span class="m">2</span><span class="w"> </span>nodo3.laboratorio
 </code></pre></div>
 <hr />
-<h3 id="paso-4-abrir-puertos-de-alta-disponibilidad">Paso 4 — Abrir puertos de Alta Disponibilidad</h3>
-<p>Ejecutar en los tres nodos:</p>
+<p>&nbsp;</p>
+<h3 id="paso-4-abrir-puertos-de-alta-disponibilidad-nodo1-nodo2-y-nodo3">Paso 4 — Abrir puertos de Alta Disponibilidad <strong><code>nodo1, nodo2 y nodo3</code></strong></h3>
+<p>Ejecutar</p>
 <div class="highlight"><pre><span></span><code>firewall-cmd<span class="w"> </span>--permanent<span class="w"> </span>--add-service<span class="o">=</span>high-availability
 </code></pre></div>
 <div class="highlight"><pre><span></span><code>firewall-cmd<span class="w"> </span>--reload
 </code></pre></div>
 <hr />
-<h3 id="paso-5-validar-reglas-aplicadas">Paso 5 — Validar reglas aplicadas</h3>
+<p>&nbsp;</p>
+<h3 id="paso-5-validar-reglas-aplicadas-nodo1-nodo2-y-nodo3">Paso 5 — Validar reglas aplicadas - <strong><code>nodo1, nodo2 y nodo3</code></strong></h3>
 <div class="highlight"><pre><span></span><code>firewall-cmd<span class="w"> </span>--list-services
 </code></pre></div>
 <p>Debe visualizarse:</p>
 <div class="highlight"><pre><span></span><code>high-availability
 </code></pre></div>
 <hr />
-<h1 id="fase-2-configuracion-de-almacenamiento-compartido-iscsi">FASE 2 — Configuración de Almacenamiento Compartido iSCSI</h1>
-<h3 id="paso-1-instalar-utilerias-iscsi">Paso 1 — Instalar utilerías iSCSI</h3>
-<p>Ejecutar en todos los nodos:</p>
-<div class="highlight"><pre><span></span><code>dnf<span class="w"> </span>install<span class="w"> </span>-y<span class="w"> </span>iscsi-initiator-utils
+<p>&nbsp;</p>
+<h2 id="fase-2-configuracion-de-almacenamiento-compartido-iscsi">FASE 2 — Configuración de Almacenamiento Compartido iSCSI</h2>
+<p>&nbsp;</p>
+<h3 id="paso-1-instalar-utilerias-iscsi-nodo1-nodo2-y-nodo3">Paso 1 — Instalar utilerías iSCSI - <strong><code>nodo1, nodo2 y nodo3</code></strong></h3>
+<p>Ejecutar:</p>
+<div class="highlight"><pre><span></span><code>dnf<span class="w"> </span>install<span class="w"> </span>iscsi-initiator-utils<span class="w"> </span>-y
 </code></pre></div>
 <hr />
-<h3 id="paso-2-habilitar-servicio-iscsi">Paso 2 — Habilitar servicio iSCSI</h3>
+<p>&nbsp;</p>
+<h3 id="paso-2-habilitar-servicio-iscsi-nodo1-nodo2-y-nodo3">Paso 2 — Habilitar servicio iSCSI - <strong><code>nodo1, nodo2 y nodo3</code></strong></h3>
 <div class="highlight"><pre><span></span><code>systemctl<span class="w"> </span><span class="nb">enable</span><span class="w"> </span>--now<span class="w"> </span>iscsid
 </code></pre></div>
 <hr />
@@ -6574,14 +6579,15 @@ ping<span class="w"> </span>-c<span class="w"> </span><span class="m">2</span><s
 <div class="highlight"><pre><span></span><code>10.0.0.20:3260,1 iqn.2026-06.laboratorio.san:storage
 </code></pre></div>
 <hr />
-<h3 id="paso-4-iniciar-sesion-contra-la-cabina-san">Paso 4 — Iniciar sesión contra la cabina SAN</h3>
+<h3 id="paso-4-iniciar-sesion-contra-la-cabina-san-nodo1-nodo2-y-nodo3">Paso 4 — Iniciar sesión contra la cabina SAN - <strong><code>nodo1, nodo2 y nodo3</code></strong></h3>
 <div class="highlight"><pre><span></span><code>iscsiadm<span class="w"> </span>-m<span class="w"> </span>node<span class="w"> </span><span class="se">\</span>
 -T<span class="w"> </span>iqn.2026-06.laboratorio.san:storage<span class="w"> </span><span class="se">\</span>
 -p<span class="w"> </span><span class="m">10</span>.0.0.20<span class="w"> </span><span class="se">\</span>
 --login
 </code></pre></div>
 <hr />
-<h3 id="paso-5-validar-nuevos-discos">Paso 5 — Validar nuevos discos</h3>
+<p>&nbsp;</p>
+<h3 id="paso-5-validar-nuevos-discos-nodo1-nodo2-y-nodo3">Paso 5 — Validar nuevos discos - <strong><code>nodo1, nodo2 y nodo3</code></strong></h3>
 <div class="highlight"><pre><span></span><code>lsblk
 </code></pre></div>
 <p>Ejemplo:</p>
@@ -6589,44 +6595,53 @@ ping<span class="w"> </span>-c<span class="w"> </span><span class="m">2</span><s
 sdb  15G
 </code></pre></div>
 <hr />
+<p>&nbsp;</p>
 <h3 id="paso-6-configurar-inicio-automatico-de-sesiones-iscsi">Paso 6 — Configurar inicio automático de sesiones iSCSI</h3>
 <div class="highlight"><pre><span></span><code>iscsiadm<span class="w"> </span>-m<span class="w"> </span>node<span class="w"> </span>--op<span class="w"> </span>update<span class="w"> </span><span class="se">\</span>
 -n<span class="w"> </span>node.startup<span class="w"> </span><span class="se">\</span>
 -v<span class="w"> </span>automatic
 </code></pre></div>
 <hr />
+<p>&nbsp;</p>
 <h3 id="paso-7-reiniciar-servicio-iscsi">Paso 7 — Reiniciar servicio iSCSI</h3>
 <div class="highlight"><pre><span></span><code>systemctl<span class="w"> </span>restart<span class="w"> </span>iscsid
 </code></pre></div>
 <hr />
-<h1 id="fase-3-instalacion-de-pacemaker-corosync-y-pcs">FASE 3 — Instalación de Pacemaker, Corosync y PCS</h1>
+<h2 id="fase-3-instalacion-de-pacemaker-corosync-y-pcs">FASE 3 — Instalación de Pacemaker, Corosync y PCS</h2>
+<p>&nbsp;</p>
 <h3 id="paso-1-habilitar-repositorio-high-availability">Paso 1 — Habilitar repositorio High Availability</h3>
 <p>Ejecutar en los tres nodos:</p>
 <div class="highlight"><pre><span></span><code>dnf<span class="w"> </span>config-manager<span class="w"> </span>--set-enabled<span class="w"> </span>highavailability
 </code></pre></div>
 <hr />
+<p>&nbsp;</p>
 <h3 id="paso-2-limpiar-metadatos-de-repositorios">Paso 2 — Limpiar metadatos de repositorios</h3>
 <div class="highlight"><pre><span></span><code>dnf<span class="w"> </span>clean<span class="w"> </span>all
 </code></pre></div>
 <hr />
+<p>&nbsp;</p>
 <h3 id="paso-3-instalar-paquetes-del-cluster">Paso 3 — Instalar paquetes del Cluster</h3>
 <div class="highlight"><pre><span></span><code>dnf<span class="w"> </span>install<span class="w"> </span>-y<span class="w"> </span>pacemaker<span class="w"> </span>pcs<span class="w"> </span>corosync<span class="w"> </span>sbd<span class="w"> </span>fence-agents-sbd
 </code></pre></div>
 <hr />
+<p>&nbsp;</p>
 <h3 id="paso-4-validar-instalacion">Paso 4 — Validar instalación</h3>
 <div class="highlight"><pre><span></span><code>rpm<span class="w"> </span>-qa<span class="w"> </span><span class="p">|</span><span class="w"> </span>egrep<span class="w"> </span><span class="s2">&quot;pacemaker|pcs|corosync|sbd&quot;</span>
 </code></pre></div>
 <hr />
+<p>&nbsp;</p>
 <h3 id="paso-5-habilitar-servicio-pcsd">Paso 5 — Habilitar servicio pcsd</h3>
 <div class="highlight"><pre><span></span><code>systemctl<span class="w"> </span><span class="nb">enable</span><span class="w"> </span>--now<span class="w"> </span>pcsd
 </code></pre></div>
 <hr />
+<p>&nbsp;</p>
 <h3 id="paso-6-configurar-contrasena-del-usuario-hacluster">Paso 6 — Configurar contraseña del usuario hacluster</h3>
 <p>Ejecutar en los tres nodos:</p>
 <div class="highlight"><pre><span></span><code>passwd<span class="w"> </span>hacluster
 </code></pre></div>
 <p>Utilizar exactamente la misma contraseña en todos los servidores.</p>
 <hr />
+<p>&nbsp;</p>
 <h3 id="paso-7-validar-servicio-pcsd">Paso 7 — Validar servicio pcsd</h3>
 <div class="highlight"><pre><span></span><code>systemctl<span class="w"> </span>status<span class="w"> </span>pcsd
 </code></pre></div>
@@ -6634,6 +6649,7 @@ sdb  15G
 <div class="highlight"><pre><span></span><code>active (running)
 </code></pre></div>
 <hr />
+<p>&nbsp;</p>
 <h1 id="fase-4-creacion-del-cluster">FASE 4 — Creación del Cluster</h1>
 <p>⚠️ Los siguientes pasos se ejecutan únicamente desde:</p>
 <div class="highlight"><pre><span></span><code>nodo1.laboratorio
@@ -6648,25 +6664,30 @@ nodo3.laboratorio<span class="w"> </span><span class="se">\</span>
 </code></pre></div>
 <p>Ingresar la contraseña cuando sea solicitada.</p>
 <hr />
+<p>&nbsp;</p>
 <h3 id="paso-2-validar-autenticacion">Paso 2 — Validar autenticación</h3>
 <div class="highlight"><pre><span></span><code>pcs<span class="w"> </span>host<span class="w"> </span>auth
 </code></pre></div>
 <hr />
 <h3 id="paso-3-crear-cluster">Paso 3 — Crear Cluster</h3>
+<p>&nbsp;</p>
 <div class="highlight"><pre><span></span><code>pcs<span class="w"> </span>cluster<span class="w"> </span>setup<span class="w"> </span>cluster_laboratorio<span class="w"> </span><span class="se">\</span>
 nodo1.laboratorio<span class="w"> </span><span class="se">\</span>
 nodo2.laboratorio<span class="w"> </span><span class="se">\</span>
 nodo3.laboratorio
 </code></pre></div>
 <hr />
+<p>&nbsp;</p>
 <h3 id="paso-4-arrancar-cluster">Paso 4 — Arrancar Cluster</h3>
 <div class="highlight"><pre><span></span><code>pcs<span class="w"> </span>cluster<span class="w"> </span>start<span class="w"> </span>--all
 </code></pre></div>
 <hr />
+<p>&nbsp;</p>
 <h3 id="paso-5-habilitar-inicio-automatico">Paso 5 — Habilitar inicio automático</h3>
 <div class="highlight"><pre><span></span><code>pcs<span class="w"> </span>cluster<span class="w"> </span><span class="nb">enable</span><span class="w"> </span>--all
 </code></pre></div>
 <hr />
+<p>&nbsp;</p>
 <h3 id="paso-6-verificar-estado">Paso 6 — Verificar estado</h3>
 <div class="highlight"><pre><span></span><code>pcs<span class="w"> </span>status
 </code></pre></div>
@@ -6677,6 +6698,7 @@ Current DC: nodo1
 3 nodes configured
 </code></pre></div>
 <hr />
+<p>&nbsp;</p>
 <h3 id="paso-7-validar-quorum">Paso 7 — Validar quorum</h3>
 <div class="highlight"><pre><span></span><code>pcs<span class="w"> </span>quorum<span class="w"> </span>status
 </code></pre></div>
@@ -6684,10 +6706,12 @@ Current DC: nodo1
 <div class="highlight"><pre><span></span><code>Quorate: Yes
 </code></pre></div>
 <hr />
+<p>&nbsp;</p>
 <h3 id="paso-8-validar-estado-de-corosync">Paso 8 — Validar estado de Corosync</h3>
 <div class="highlight"><pre><span></span><code>corosync-cfgtool<span class="w"> </span>-s
 </code></pre></div>
 <hr />
+<p>&nbsp;</p>
 <h3 id="paso-9-validar-membresia-del-cluster">Paso 9 — Validar membresía del Cluster</h3>
 <div class="highlight"><pre><span></span><code>corosync-quorumtool
 </code></pre></div>
@@ -6700,9 +6724,11 @@ Node ID      Votes Name
 3               1 nodo3
 </code></pre></div>
 <hr />
+<p>&nbsp;</p>
 <h1 id="fase-5-configuracion-de-fencing-sbd">FASE 5 — Configuración de Fencing SBD</h1>
 <p>⚠️ Esta fase protege al Cluster contra Split-Brain.</p>
 <hr />
+<p>&nbsp;</p>
 <h3 id="paso-1-validar-disco-dedicado-para-sbd">Paso 1 — Validar disco dedicado para SBD</h3>
 <div class="highlight"><pre><span></span><code>lsblk
 </code></pre></div>
@@ -6710,6 +6736,7 @@ Node ID      Votes Name
 <div class="highlight"><pre><span></span><code>sda   1G
 </code></pre></div>
 <hr />
+<p>&nbsp;</p>
 <h3 id="paso-2-inicializar-disco-sbd">Paso 2 — Inicializar disco SBD</h3>
 <p>Ejecutar únicamente en nodo1:</p>
 <div class="highlight"><pre><span></span><code>sbd<span class="w"> </span>-d<span class="w"> </span>/dev/sda<span class="w"> </span>create
@@ -6719,6 +6746,7 @@ Node ID      Votes Name
 <div class="highlight"><pre><span></span><code>sbd<span class="w"> </span>-d<span class="w"> </span>/dev/sda<span class="w"> </span>dump
 </code></pre></div>
 <hr />
+<p>&nbsp;</p>
 <h3 id="paso-4-registrar-cada-nodo-en-sbd">Paso 4 — Registrar cada nodo en SBD</h3>
 <p>Ejecutar en todos los nodos:</p>
 <div class="highlight"><pre><span></span><code>sbd<span class="w"> </span>-d<span class="w"> </span>/dev/sda<span class="w"> </span>allocate<span class="w"> </span><span class="k">$(</span>hostname<span class="k">)</span>
