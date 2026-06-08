@@ -76,6 +76,7 @@ En caso de que alguna de las configuraciones descritas en el runbook no haya sid
 
 ### Paso 1 — Configurar resolución local
 
+<small>Aplicar en: nodo1, nodo2 y nodo3</small>
 
 Editar:
 
@@ -91,8 +92,6 @@ Agregar:
 10.0.0.13 nodo3.laboratorio nodo3
 10.0.0.20 nodo4.laboratorio nodo4
 ```
-
-<small>Aplicar en: nodo1, nodo2 y nodo3</small>
 
 ---
 &nbsp;
