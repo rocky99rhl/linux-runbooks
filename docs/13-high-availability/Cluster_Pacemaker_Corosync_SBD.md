@@ -19,6 +19,8 @@ code {
 
 Implementar un Cluster de Alta Disponibilidad (HA) en Rocky Linux 10 utilizando Pacemaker, Corosync, PCS y SBD, con almacenamiento compartido iSCSI, protección contra Split-Brain mediante STONITH y administración automática de recursos críticos mediante Failover Activo/Pasivo.
 
+&nbsp;
+
 La solución permitirá:
 
 - Alta disponibilidad de aplicaciones críticas.
@@ -29,6 +31,7 @@ La solución permitirá:
 - Exposición de servicios mediante IP Virtual flotante.
 
 ---
+&nbsp;
 
 # 🧱 Requisitos
 
@@ -48,7 +51,9 @@ La solución permitirá:
 | nodo1.laboratorio | 10.0.0.11 |
 | nodo2.laboratorio | 10.0.0.12 |
 | nodo3.laboratorio | 10.0.0.13 |
-| SAN iSCSI | 10.0.0.20 |
+| nodo4.laboratorio | 10.0.0.20 | 
+
+<small>El nodo4 es la maquina que simula la cabina SAN </small>
 
 ---
 
@@ -56,31 +61,21 @@ La solución permitirá:
 
 # 🚀 Inicio del Procedimiento
 
-# FASE 1 — Configuración de Red y Resolución de Nombres
+## FASE 1 — Configuración de Red y Resolución de Nombres
+&nbsp;
 
-### Paso 1 — Configurar Hostname
+Antes de iniciar la Fase 1 de este procedimiento, se asume que las máquinas virtuales ya fueron desplegadas y configuradas conforme a lo establecido en el runbook Configuración de Laboratorio.
 
-Nodo 1:
+Esta validación previa garantiza que todos los componentes, dependencias y parámetros requeridos para el entorno se encuentran correctamente preparados, permitiendo ejecutar el laboratorio de Alta Disponibilidad de manera controlada y sin contratiempos derivados de configuraciones pendientes o incompletas.
 
-```bash
-hostnamectl set-hostname nodo1.laboratorio
-```
+En caso de que alguna de las configuraciones descritas en el runbook no haya sido aplicada, se recomienda completarla antes de continuar con las siguientes fases del procedimiento.
 
-Nodo 2:
 
-```bash
-hostnamectl set-hostname nodo2.laboratorio
-```
+----
+&nbsp;
 
-Nodo 3:
+### Paso 1 — Configurar resolución local
 
-```bash
-hostnamectl set-hostname nodo3.laboratorio
-```
-
----
-
-### Paso 2 — Configurar resolución local
 
 Editar:
 
@@ -97,9 +92,12 @@ Agregar:
 10.0.0.20 nodo4.laboratorio nodo4
 ```
 
----
+<small>Aplicar en: nodo1, nodo2 y nodo3</small>
 
-### Paso 3 — Validar resolución DNS local
+---
+&nbsp;
+
+### Paso 3 — Validar resolución DNS local - **`nodo1, nodo2 y nodo3`**
 
 ```bash
 ping -c 2 nodo1.laboratorio
@@ -108,10 +106,11 @@ ping -c 2 nodo3.laboratorio
 ```
 
 ---
+&nbsp;
 
-### Paso 4 — Abrir puertos de Alta Disponibilidad
+### Paso 4 — Abrir puertos de Alta Disponibilidad **`nodo1, nodo2 y nodo3`**
 
-Ejecutar en los tres nodos:
+Ejecutar
 
 ```bash
 firewall-cmd --permanent --add-service=high-availability
@@ -122,8 +121,9 @@ firewall-cmd --reload
 ```
 
 ---
+&nbsp;
 
-### Paso 5 — Validar reglas aplicadas
+### Paso 5 — Validar reglas aplicadas - **`nodo1, nodo2 y nodo3`**
 
 ```bash
 firewall-cmd --list-services
@@ -136,24 +136,28 @@ high-availability
 ```
 
 ---
+&nbsp;
 
-# FASE 2 — Configuración de Almacenamiento Compartido iSCSI
+## FASE 2 — Configuración de Almacenamiento Compartido iSCSI
+&nbsp;
 
-### Paso 1 — Instalar utilerías iSCSI
+### Paso 1 — Instalar utilerías iSCSI - **`nodo1, nodo2 y nodo3`**
 
-Ejecutar en todos los nodos:
+Ejecutar:
 
 ```bash
-dnf install -y iscsi-initiator-utils
+dnf install iscsi-initiator-utils -y
 ```
 
 ---
+&nbsp;
 
-### Paso 2 — Habilitar servicio iSCSI
+### Paso 2 — Habilitar servicio iSCSI - **`nodo1, nodo2 y nodo3`**
 
 ```bash
 systemctl enable --now iscsid
 ```
+
 
 ---
 
@@ -171,7 +175,7 @@ Ejemplo:
 
 ---
 
-### Paso 4 — Iniciar sesión contra la cabina SAN
+### Paso 4 — Iniciar sesión contra la cabina SAN - **`nodo1, nodo2 y nodo3`**
 
 ```bash
 iscsiadm -m node \
@@ -181,8 +185,9 @@ iscsiadm -m node \
 ```
 
 ---
+&nbsp;
 
-### Paso 5 — Validar nuevos discos
+### Paso 5 — Validar nuevos discos - **`nodo1, nodo2 y nodo3`**
 
 ```bash
 lsblk
@@ -196,6 +201,7 @@ sdb  15G
 ```
 
 ---
+&nbsp;
 
 ### Paso 6 — Configurar inicio automático de sesiones iSCSI
 
@@ -206,6 +212,7 @@ iscsiadm -m node --op update \
 ```
 
 ---
+&nbsp;
 
 ### Paso 7 — Reiniciar servicio iSCSI
 
@@ -216,7 +223,8 @@ systemctl restart iscsid
 ---
 
 
-# FASE 3 — Instalación de Pacemaker, Corosync y PCS
+## FASE 3 — Instalación de Pacemaker, Corosync y PCS
+&nbsp;
 
 ### Paso 1 — Habilitar repositorio High Availability
 
@@ -227,6 +235,7 @@ dnf config-manager --set-enabled highavailability
 ```
 
 ---
+&nbsp;
 
 ### Paso 2 — Limpiar metadatos de repositorios
 
@@ -235,6 +244,7 @@ dnf clean all
 ```
 
 ---
+&nbsp;
 
 ### Paso 3 — Instalar paquetes del Cluster
 
@@ -243,6 +253,7 @@ dnf install -y pacemaker pcs corosync sbd fence-agents-sbd
 ```
 
 ---
+&nbsp;
 
 ### Paso 4 — Validar instalación
 
@@ -251,6 +262,7 @@ rpm -qa | egrep "pacemaker|pcs|corosync|sbd"
 ```
 
 ---
+&nbsp;
 
 ### Paso 5 — Habilitar servicio pcsd
 
@@ -259,6 +271,7 @@ systemctl enable --now pcsd
 ```
 
 ---
+&nbsp;
 
 ### Paso 6 — Configurar contraseña del usuario hacluster
 
@@ -271,6 +284,7 @@ passwd hacluster
 Utilizar exactamente la misma contraseña en todos los servidores.
 
 ---
+&nbsp;
 
 ### Paso 7 — Validar servicio pcsd
 
@@ -285,6 +299,7 @@ active (running)
 ```
 
 ---
+&nbsp;
 
 # FASE 4 — Creación del Cluster
 
@@ -309,6 +324,7 @@ nodo3.laboratorio \
 Ingresar la contraseña cuando sea solicitada.
 
 ---
+&nbsp;
 
 ### Paso 2 — Validar autenticación
 
@@ -319,6 +335,7 @@ pcs host auth
 ---
 
 ### Paso 3 — Crear Cluster
+&nbsp;
 
 ```bash
 pcs cluster setup cluster_laboratorio \
@@ -328,6 +345,7 @@ nodo3.laboratorio
 ```
 
 ---
+&nbsp;
 
 ### Paso 4 — Arrancar Cluster
 
@@ -336,7 +354,7 @@ pcs cluster start --all
 ```
 
 ---
-
+&nbsp;
 ### Paso 5 — Habilitar inicio automático
 
 ```bash
@@ -344,6 +362,7 @@ pcs cluster enable --all
 ```
 
 ---
+&nbsp;
 
 ### Paso 6 — Verificar estado
 
@@ -361,6 +380,7 @@ Current DC: nodo1
 ```
 
 ---
+&nbsp;
 
 ### Paso 7 — Validar quorum
 
@@ -375,6 +395,7 @@ Quorate: Yes
 ```
 
 ---
+&nbsp;
 
 ### Paso 8 — Validar estado de Corosync
 
@@ -383,6 +404,7 @@ corosync-cfgtool -s
 ```
 
 ---
+&nbsp;
 
 ### Paso 9 — Validar membresía del Cluster
 
@@ -402,12 +424,14 @@ Node ID      Votes Name
 ```
 
 ---
+&nbsp;
 
 # FASE 5 — Configuración de Fencing SBD
 
 ⚠️ Esta fase protege al Cluster contra Split-Brain.
 
 ---
+&nbsp;
 
 ### Paso 1 — Validar disco dedicado para SBD
 
@@ -422,6 +446,7 @@ sda   1G
 ```
 
 ---
+&nbsp;
 
 ### Paso 2 — Inicializar disco SBD
 
@@ -440,6 +465,7 @@ sbd -d /dev/sda dump
 ```
 
 ---
+&nbsp;
 
 ### Paso 4 — Registrar cada nodo en SBD
 

@@ -163,7 +163,7 @@ nav:
       - Overview: 12-performance/index.md
 
   - 🤖 High Availability:
-      - Cluster: 13-high-availability/Cluster_Pacemaker_Corosync_SBD.md
+      - Cluster Pacemaker: 13-high-availability/Cluster_Pacemaker_Corosync_SBD.md
 
   - 🌍 Conectividad Remota:
       - Overview: 14-conectividad-remota/index.md
