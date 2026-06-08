@@ -162,14 +162,33 @@ nav:
   - 📈 Performance:
       - Overview: 12-performance/index.md
 
-  - 🤖 Automatización:
-      - Overview: 13-automatizacion/index.md
+  - 🤖 High Availability:
+      - Cluster: 13-high-availability/Cluster_Pacemaker_Corosync_SBD.md
 
   - 🌍 Conectividad Remota:
       - Overview: 14-conectividad-remota/index.md
 
   - 📦 Paquetes:
-      - Overview: 15-paquetes/index.md
+      - 📥 Instalación y Actualización:
+          - Instalar paquetes con dnf: 15-paquetes/instalacion/instalar-paquetes-dnf.md
+          - Instalar RPM locales: 15-paquetes/instalacion/instalar-rpm-local.md
+          - Actualizar paquetes y kernel: 15-paquetes/instalacion/actualizar-paquetes-kernel.md
+          - Rollback con dnf history: 15-paquetes/instalacion/rollback-dnf-history.md
+
+      - 🏢 Repositorios:
+          - Configurar EPEL y repositorios externos: 15-paquetes/repositorios/configurar-epel-repositorios.md
+          - Crear repositorio local con ISO: 15-paquetes/repositorios/repositorio-local-iso.md
+
+      - 🔐 Seguridad y Automatización:
+          - Aplicar actualizaciones de seguridad: 15-paquetes/seguridad/aplicar-parches-seguridad.md
+          - Configurar versionlock: 15-paquetes/seguridad/configurar-versionlock.md
+          - Configurar dnf-automatic: 15-paquetes/seguridad/configurar-dnf-automatic.md
+
+      - 🧹 Limpieza y Troubleshooting:
+          - Limpiar caché dnf: 15-paquetes/troubleshooting/limpiar-cache-dnf.md
+          - Eliminar paquetes y dependencias huérfanas: 15-paquetes/troubleshooting/eliminar-dependencias-huerfanas.md
+          - Reparar base de datos RPM: 15-paquetes/troubleshooting/reparar-rpmdb.md  
+
 
   - 🕒 Tiempo del Sistema:
       - Overview: 16-tiempo-sistema/index.md
@@ -187,5 +206,58 @@ nav:
       - Overview: 20-troubleshooting/index.md
 
   - 🎓 Red Hat EX200:
-      - Overview: 21-RedHat-Certificacion-EX200/index.md
-      - Práctica 1: 21-RedHat-Certificacion-EX200/Practica_1.md
+      - Examen 1:
+        - Pregunta 1: 21-RedHat-Certificacion-EX200/Examen_1/Pregunta_1.md     
+        - Pregunta 2: 21-RedHat-Certificacion-EX200/Examen_1/Pregunta_2.md     
+        - Pregunta 3: 21-RedHat-Certificacion-EX200/Examen_1/Pregunta_3.md    
+        - Pregunta 4: 21-RedHat-Certificacion-EX200/Examen_1/Pregunta_4.md         
+        - Pregunta 5: 21-RedHat-Certificacion-EX200/Examen_1/Pregunta_5.md
+        - Pregunta 6: 21-RedHat-Certificacion-EX200/Examen_1/Pregunta_6.md
+        - Pregunta 7: 21-RedHat-Certificacion-EX200/Examen_1/Pregunta_7.md   
+        - Pregunta 8: 21-RedHat-Certificacion-EX200/Examen_1/Pregunta_8.md
+        - Pregunta 9: 21-RedHat-Certificacion-EX200/Examen_1/Pregunta_9.md
+        - Pregunta 10: 21-RedHat-Certificacion-EX200/Examen_1/Pregunta_10.md
+        - Pregunta 11: 21-RedHat-Certificacion-EX200/Examen_1/Pregunta_11.md
+        - Pregunta 12: 21-RedHat-Certificacion-EX200/Examen_1/Pregunta_12.md
+        - Pregunta 13: 21-RedHat-Certificacion-EX200/Examen_1/Pregunta_13.md
+        - Pregunta 14: 21-RedHat-Certificacion-EX200/Examen_1/Pregunta_14.md
+        - Pregunta 15: 21-RedHat-Certificacion-EX200/Examen_1/Pregunta_15.md
+        - Pregunta 16: 21-RedHat-Certificacion-EX200/Examen_1/Pregunta_16.md
+        - Pregunta 17: 21-RedHat-Certificacion-EX200/Examen_1/Pregunta_17.md
+        - Pregunta 18: 21-RedHat-Certificacion-EX200/Examen_1/Pregunta_18.md
+        - Pregunta 19: 21-RedHat-Certificacion-EX200/Examen_1/Pregunta_19.md
+        - Pregunta 20: 21-RedHat-Certificacion-EX200/Examen_1/Pregunta_20.md
+        - Pregunta 21: 21-RedHat-Certificacion-EX200/Examen_1/Pregunta_21.md
+        - Pregunta 22: 21-RedHat-Certificacion-EX200/Examen_1/Pregunta_22.md
+        - Pregunta 23: 21-RedHat-Certificacion-EX200/Examen_1/Pregunta_23.md
+        - Pregunta 24: 21-RedHat-Certificacion-EX200/Examen_1/Pregunta_24.md
+        - Pregunta 25: 21-RedHat-Certificacion-EX200/Examen_1/Pregunta_25.md
+      
+      - Examen 2:
+        - Pregunta 1: 21-RedHat-Certificacion-EX200/Examen_2/Pregunta_1.md     
+        - Pregunta 2: 21-RedHat-Certificacion-EX200/Examen_2/Pregunta_2.md     
+        - Pregunta 3: 21-RedHat-Certificacion-EX200/Examen_2/Pregunta_3.md    
+        - Pregunta 4: 21-RedHat-Certificacion-EX200/Examen_2/Pregunta_4.md         
+        - Pregunta 5: 21-RedHat-Certificacion-EX200/Examen_2/Pregunta_5.md
+        - Pregunta 6: 21-RedHat-Certificacion-EX200/Examen_2/Pregunta_6.md
+        - Pregunta 7: 21-RedHat-Certificacion-EX200/Examen_2/Pregunta_7.md   
+        - Pregunta 8: 21-RedHat-Certificacion-EX200/Examen_2/Pregunta_8.md
+        - Pregunta 9: 21-RedHat-Certificacion-EX200/Examen_2/Pregunta_9.md
+        - Pregunta 10: 21-RedHat-Certificacion-EX200/Examen_2/Pregunta_10.md
+        - Pregunta 11: 21-RedHat-Certificacion-EX200/Examen_2/Pregunta_11.md
+        - Pregunta 12: 21-RedHat-Certificacion-EX200/Examen_2/Pregunta_12.md
+        - Pregunta 13: 21-RedHat-Certificacion-EX200/Examen_2/Pregunta_13.md
+        - Pregunta 14: 21-RedHat-Certificacion-EX200/Examen_2/Pregunta_14.md
+        - Pregunta 15: 21-RedHat-Certificacion-EX200/Examen_2/Pregunta_15.md
+        - Pregunta 16: 21-RedHat-Certificacion-EX200/Examen_2/Pregunta_16.md
+        - Pregunta 17: 21-RedHat-Certificacion-EX200/Examen_2/Pregunta_17.md
+        - Pregunta 18: 21-RedHat-Certificacion-EX200/Examen_2/Pregunta_18.md
+        - Pregunta 19: 21-RedHat-Certificacion-EX200/Examen_2/Pregunta_19.md
+        - Pregunta 20: 21-RedHat-Certificacion-EX200/Examen_2/Pregunta_20.md
+        - Pregunta 21: 21-RedHat-Certificacion-EX200/Examen_2/Pregunta_21.md
+        - Pregunta 22: 21-RedHat-Certificacion-EX200/Examen_2/Pregunta_22.md
+        - Pregunta 23: 21-RedHat-Certificacion-EX200/Examen_2/Pregunta_23.md
+        - Pregunta 24: 21-RedHat-Certificacion-EX200/Examen_2/Pregunta_24.md
+        - Pregunta 25: 21-RedHat-Certificacion-EX200/Examen_2/Pregunta_25.md
+ 
+  
