@@ -93,10 +93,16 @@ Agregar:
 10.0.0.20 nodo4.laboratorio nodo4
 ```
 
+!!! info
+    * ¿Qué hace?: Garantiza la comunicación inmediata por nombre a través de la 
+     red privada de baja latencia, aislando el tráfico crítico clúster.
+
 ---
 &nbsp;
 
-### Paso 3 — Validar resolución DNS local - **`nodo1, nodo2 y nodo3`**
+### Paso 3 — Validar resolución DNS local
+
+<small>Aplicar en: nodo1, nodo2 y nodo3</small>
 
 ```bash
 ping -c 2 nodo1.laboratorio
