@@ -1,12 +1,12 @@
 <style>
 p,
 li {
-  font-size: 14px;
+  font-size: 15px;
   line-height: 1.6;
 }
 
 code {
-  font-size: 14px;
+  font-size: 15px;
 }
 </style>
 
@@ -216,10 +216,18 @@ Ejecutar:
     - `--now`: Inicia el servicio de forma inmediata sin necesidad de un reinicio.
     - `target`: Servicio de LIO/targetd que gestiona la exportación de almacenamiento iSCSI en el sistema.
 
+&nbsp;
 
 ```bash
 # lsblk -l
 ```
+
+- El comando muestra la lista de dispositivos de bloques del sistema en formato de lista, permitiendo identificar discos, particiones y volúmenes disponibles, incluyendo aquellos conectados por iSCSI.
+    - `lsblk`: Herramienta utilizada para listar dispositivos de bloque como discos, particiones y volúmenes lógicos.
+    - `-l`: Muestra la salida en formato de lista (uno por línea) en lugar de una vista en árbol.
+
+&nbsp;
+
 
 ```bash
 # targetcli
@@ -248,6 +256,8 @@ set attribute authentication=0 demo_mode_write_protect=0 generate_node_acls=1
 exit
 ```
 
+- Configura un target iSCSI en la cabina SAN, creando dos discos exportados (san-quorum y san-datos) a partir de dispositivos locales, definiendo el IQN del target, asignando ambos como LUNs disponibles para los nodos del clúster y habilitando el acceso sin autenticación para que puedan conectarse y utilizarlos como almacenamiento compartido.
+
 
 ----
 
@@ -255,7 +265,7 @@ exit
 
 **Instalar utilerías iSCSI**
 
-<small>Aplicar en: nodo1, nodo2 y nodo3</small>
+<small>Aplicar en: **nodo1, nodo2 y nodo3**</small>
 
 Ejecutar:
 
@@ -299,7 +309,7 @@ Ejecutar:
 
 
 ```bash
-iscsiadm -m node -T iqn.2026-06.laboratorio.san:storage -p 10.0.0.20 --login
+# iscsiadm -m node -T iqn.2026-06.laboratorio.san:storage -p 10.0.0.20 --login
 ```
 
 - El comando establece una conexión con el target iSCSI especificado, permitiendo que el sistema acceda al almacenamiento remoto exportado por el servidor iSCSI.
@@ -315,15 +325,19 @@ iscsiadm -m node -T iqn.2026-06.laboratorio.san:storage -p 10.0.0.20 --login
 
 
 ```bash
-lsblk
+# lsblk
 ```
+
+- El comando muestra la lista de dispositivos de bloques del sistema en formato de lista, permitiendo identificar discos, particiones y volúmenes disponibles, incluyendo aquellos conectados por iSCSI.
+    - `lsblk`: Herramienta utilizada para listar dispositivos de bloque como discos, particiones y volúmenes lógicos.
+    - `-l`: Muestra la salida en formato de lista (uno por línea) en lugar de una vista en árbol.
 
 &nbsp;
 
 **Configurar inicio automático de sesiones iSCSI**
 
 ```bash
-iscsiadm -m node --op update -n node.startup -v automatic
+# iscsiadm -m node --op update -n node.startup -v automatic
 ```
 
 - El comando configura los nodos iSCSI para que las conexiones se establezcan automáticamente al iniciar el sistema operativo, asegurando que los discos remotos estén disponibles después de cada reinicio.
@@ -337,7 +351,7 @@ iscsiadm -m node --op update -n node.startup -v automatic
 &nbsp;
 
 ```bash
-systemctl restart iscsid
+# systemctl restart iscsid
 ```
 
 - El comando reinicia el servicio iscsid, responsable de gestionar las conexiones y sesiones iSCSI en el sistema. Esto permite aplicar cambios recientes en la configuración y restablecer la comunicación con los dispositivos de almacenamiento iSCSI.
@@ -360,50 +374,88 @@ systemctl restart iscsid
 Ejecutar:
 
 ```bash
-dnf config-manager --set-enabled highavailability
+# dnf config-manager --set-enabled highavailability
 ```
 
+- El comando habilita el repositorio de alta disponibilidad (High Availability) en el sistema, permitiendo la instalación de paquetes necesarios para clústeres como Pacemaker, Corosync y herramientas relacionadas.
+    - `dnf`: Gestor de paquetes utilizado en distribuciones basadas en Red Hat para instalar, actualizar y gestionar software.
+    - `config-manager`: Subcomando de DNF que permite gestionar repositorios del sistema.
+    - `--set-enabled`: Activa un repositorio deshabilitado previamente.
+    - `highavailability`: Nombre del repositorio que contiene paquetes relacionados con soluciones de alta disponibilidad.
 
-```bash
-dnf clean all
-```
-
-
-```bash
-dnf install -y pacemaker pcs corosync sbd fence-agents-sbd
-```
-
-
-```bash
-rpm -qa | egrep "pacemaker|pcs|corosync|sbd"
-```
-
-```bash
-systemctl enable --now pcsd
-```
-
----
 &nbsp;
 
-### Paso 6 — Configurar contraseña del usuario hacluster
+```bash
+# dnf clean all
+```
 
-<small>Aplicar en: nodo1, nodo2 y nodo3</small>
+- El comando limpia la caché local de DNF, eliminando metadatos y paquetes almacenados para forzar que el sistema descargue información actualizada de los repositorios.
+    - `dnf`: Gestor de paquetes utilizado en sistemas basados en Red Hat para instalar y administrar software.
+    - `clean`: Subcomando que indica que se realizará una limpieza de la caché.
+    - `all`: Especifica que se eliminará toda la caché de DNF (metadatos, paquetes descargados y datos temporales).
+
+&nbsp;
+
+```bash
+# dnf install -y pacemaker pcs corosync sbd fence-agents-sbd
+```
+
+- El comando instala los componentes necesarios para configurar un clúster de alta disponibilidad basado en Pacemaker, Corosync y SBD, incluyendo herramientas de gestión y agentes de fencing.
+    - `install`: Indica que se realizará la instalación de paquetes.
+    - `-y`: Acepta automáticamente todas las confirmaciones durante la instalación.
+    - `pacemaker`: Motor de clúster encargado de gestionar recursos y garantizar alta disponibilidad.
+    - `pcs`: Herramienta de administración para configurar y gestionar el clúster.
+    - `corosync`: Sistema de mensajería que permite la comunicación entre nodos del clúster.
+    - `sbd`: Servicio de STONITH Block Device utilizado para fencing en entornos de alta disponibilidad.
+    - `fence-agents-sbd`: Paquete que proporciona agentes de fencing para integrar SBD con Pacemaker.
+
+
+&nbsp;
+
+```bash
+# rpm -qa | egrep "pacemaker|pcs|corosync|sbd"
+```
+
+- El comando lista los paquetes instalados en el sistema y filtra aquellos relacionados con Pacemaker, PCS, Corosync y SBD para verificar que los componentes del clúster estén correctamente instalados.
+    - `rpm`: Herramienta de gestión de paquetes en sistemas basados en Red Hat.
+    - `-qa`: Lista todos los paquetes instalados en el sistema.
+    - `|`: Redirige la salida del comando anterior como entrada del siguiente.
+    - `egrep`: Filtra la salida usando expresiones regulares extendidas.
+    - `"pacemaker|pcs|corosync|sbd"`: Expresión que busca paquetes que coincidan con cualquiera de esos nombres.
+
+&nbsp;
+
+```bash
+# systemctl enable --now pcsd
+```
+
+- El comando habilita e inicia el servicio `pcsd`, que es el demonio encargado de la comunicación y administración remota del clúster mediante la herramienta PCS.
+    - `systemctl`: Herramienta utilizada para administrar servicios gestionados por systemd.
+    - `enable`: Configura el servicio para que se inicie automáticamente al arrancar el sistema.
+    - `--now`: Inicia el servicio inmediatamente sin necesidad de reiniciar.
+    - `pcsd`: Servicio (daemon) que permite la administración y configuración del clúster Pacemaker/Corosync mediante PCS.
+
+&nbsp;
+
+**Configurar contraseña del usuario hacluster**
+
+<small>Aplicar en: **nodo1, nodo2 y nodo3**</small>
 
 Ejecutar:
 
 ```bash
-passwd hacluster
+# passwd hacluster
 ```
 
 Utilizar exactamente la misma contraseña en todos los servidores.
 
----
+
 &nbsp;
 
-### Paso 7 — Validar servicio pcsd
+**Validar servicio pcsd**
 
 ```bash
-systemctl status pcsd
+# systemctl status pcsd
 ```
 
 Debe mostrarse:
@@ -415,7 +467,7 @@ active (running)
 ---
 &nbsp;
 
-# FASE 4 — Creación del Cluster
+## FASE 4 — Creación del Cluster
 
 ⚠️ <small>Aplicar SOLO en: **nodo1**</small>
 
@@ -440,7 +492,7 @@ active (running)
 **Validar autenticación**
 
 ```bash
-pcs host auth
+# pcs host auth
 ```
 
 &nbsp;
@@ -448,7 +500,7 @@ pcs host auth
 **Crear Cluster**
 
 ```bash
-pcs cluster setup cluster_laboratorio nodo1.laboratorio nodo2.laboratorio nodo3.laboratorio
+# pcs cluster setup cluster_laboratorio nodo1.laboratorio nodo2.laboratorio nodo3.laboratorio
 ```
 
 - El comando crea y configura un nuevo clúster de Pacemaker/Corosync utilizando los nodos especificados, estableciendo la configuración inicial necesaria para la comunicación y gestión de alta disponibilidad.
@@ -463,7 +515,7 @@ pcs cluster setup cluster_laboratorio nodo1.laboratorio nodo2.laboratorio nodo3.
 **Arrancar Cluster**
 
 ```bash
-pcs cluster start --all
+# pcs cluster start --all
 ```
 
 - El comando inicia los servicios del clúster en todos los nodos configurados, permitiendo que Pacemaker y Corosync comiencen a operar y gestionar los recursos de alta disponibilidad.
@@ -476,7 +528,7 @@ pcs cluster start --all
 
 **Habilitar inicio automático**
 ```bash
-pcs cluster enable --all
+# pcs cluster enable --all
 ```
 
 - El comando habilita los servicios del clúster en todos los nodos configurados para que se inicien automáticamente durante el arranque del sistema operativo.
@@ -491,7 +543,7 @@ pcs cluster enable --all
 **Verificar estado del cluster**
 
 ```bash
-pcs status
+# pcs status
 ```
 
 - El comando muestra el estado general del clúster, incluyendo los nodos, recursos, servicios y condiciones actuales de Pacemaker y Corosync.
@@ -505,7 +557,7 @@ pcs status
 **Validar quorum**
 
 ```bash
-pcs quorum status
+# pcs quorum status
 ```
 
 - El comando muestra información detallada sobre el estado del quórum del clúster, permitiendo verificar si existe el número suficiente de nodos activos para mantener la operación y evitar situaciones de partición del clúster.
@@ -518,7 +570,7 @@ pcs quorum status
 **Validar estado de Corosync**
 
 ```bash
-corosync-cfgtool -s
+# corosync-cfgtool -s
 ```
 
 - El comando muestra el estado de la comunicación y conectividad de Corosync entre los nodos del clúster, permitiendo verificar que los enlaces de red se encuentren operativos.
@@ -531,7 +583,7 @@ corosync-cfgtool -s
 **Validar membresía del Cluster**
 
 ```bash
-corosync-quorumtool
+# corosync-quorumtool
 ```
 
 - El comando muestra información sobre el quórum del clúster, permitiendo verificar si existe el número suficiente de nodos activos para que el clúster pueda operar correctamente.
@@ -541,7 +593,7 @@ corosync-quorumtool
 
 &nbsp;
 
-# FASE 5 — Configuración de Fencing SBD
+## FASE 5 — Configuración de Fencing SBD
 
 <small>Aplicar en: **nodo1**</small>
 
@@ -552,7 +604,7 @@ corosync-quorumtool
 **Validar disco de **1GiB** dedicado para SBD**
 
 ```bash
-lsblk
+# lsblk
 ```
 
 &nbsp;
@@ -560,7 +612,7 @@ lsblk
 **Inicializar disco SBD**
 
 ```bash
-sbd -d /dev/sda create
+# sbd -d /dev/sda create
 ```
 
 - El comando inicializa y crea la estructura SBD (STONITH Block Device) sobre el dispositivo especificado, preparándolo para ser utilizado como mecanismo de fencing en el clúster de alta disponibilidad.
@@ -573,7 +625,7 @@ sbd -d /dev/sda create
 **Validar metadata SBD**
 
 ```bash
-sbd -d /dev/sda dump
+# sbd -d /dev/sda dump
 ```
 
 - El comando muestra la información y los metadatos almacenados en el dispositivo SBD especificado, permitiendo verificar que la configuración se haya creado correctamente.
@@ -590,7 +642,7 @@ Ejecutar:
 <small>Aplicar en: **nodo1, nodo2 y nodo3**</small>
 
 ```bash
-sbd -d /dev/sda allocate $(hostname)
+# sbd -d /dev/sda allocate $(hostname)
 ```
 
 - El comando asigna un slot en el dispositivo SBD al nodo actual, permitiendo que el clúster pueda gestionar operaciones de fencing y monitoreo para dicho nodo.
@@ -604,7 +656,7 @@ sbd -d /dev/sda allocate $(hostname)
 **Validar slots registrados**
 
 ```bash
-sbd -d /dev/sda list
+# sbd -d /dev/sda list
 ```
 
 - El comando muestra la lista de slots configurados en el dispositivo SBD, permitiendo verificar qué nodos han sido registrados para las operaciones de fencing del clúster.
@@ -617,7 +669,7 @@ sbd -d /dev/sda list
 **Cargar Watchdog del Kernel**
 
 ```bash
-modprobe softdog
+# modprobe softdog
 ```
 
 - El comando carga en el kernel el módulo `softdog`, habilitando un watchdog por software que puede ser utilizado por el clúster para detectar fallos y realizar acciones de recuperación o fencing cuando sea necesario.
@@ -629,7 +681,7 @@ modprobe softdog
 **Configurar carga automática**
 
 ```bash
-echo softdog > /etc/modules-load.d/softdog.conf
+# echo softdog > /etc/modules-load.d/softdog.conf
 ```
 
 - El comando configura el sistema para que el módulo `softdog` se cargue automáticamente durante el arranque, garantizando la disponibilidad del watchdog por software después de cada reinicio.
@@ -642,7 +694,7 @@ echo softdog > /etc/modules-load.d/softdog.conf
 **Validar watchdog**
 
 ```bash
-ls -l /dev/watchdog
+# ls -l /dev/watchdog
 ```
 
 - El comando muestra información detallada sobre el dispositivo `watchdog`, permitiendo verificar que el watchdog se encuentra disponible y correctamente creado en el sistema.
@@ -657,7 +709,7 @@ ls -l /dev/watchdog
 Editar:
 
 ```bash
-vi /etc/sysconfig/sbd
+# vi /etc/sysconfig/sbd
 ```
 
 Configurar:
@@ -672,7 +724,7 @@ SBD_WATCHDOG_DEV="/dev/watchdog"
 **Habilitar servicio SBD**
 
 ```bash
-systemctl enable sbd
+# systemctl enable sbd
 ```
 
 &nbsp;
@@ -680,7 +732,7 @@ systemctl enable sbd
 **Reiniciar daemon**
 
 ```bash
-systemctl daemon-reload
+# systemctl daemon-reload
 ```
 
 &nbsp;
@@ -688,7 +740,7 @@ systemctl daemon-reload
 **Arrancar servicio SBD**
 
 ```bash
-systemctl start sbd
+# systemctl start sbd
 ```
 
 &nbsp;
@@ -696,13 +748,13 @@ systemctl start sbd
 **Verificar servicio**
 
 ```bash
-systemctl status sbd
+# systemctl status sbd
 ```
 
 ---
 
 &nbsp;
-# FASE 6 — Configuración de STONITH mediante SBD
+## FASE 6 — Configuración de STONITH mediante SBD
 
 ⚠️ <small>Aplicar en: **nodo1**</small>
 
@@ -711,13 +763,13 @@ systemctl status sbd
 Crear recurso STONITH
 
 ```bash
-pcs stonith create mi-fencing-sbd fence_sbd devices=/dev/sda pcmk_host_list="nodo1.laboratorio nodo2.laboratorio nodo3.laboratorio"
+# pcs stonith create mi-fencing-sbd fence_sbd devices=/dev/sda pcmk_host_list="nodo1.laboratorio nodo2.laboratorio nodo3.laboratorio"
 ```
 
 
 **Verificar recurso creado**
 ```bash
-pcs stonith config
+# pcs stonith config
 ```
 
 
@@ -725,14 +777,14 @@ pcs stonith config
 **Verificar estado STONITH**
 
 ```bash
-pcs status
+# pcs status
 ```
 
 
 **Habilitar STONITH**
 
 ```bash
-pcs property set stonith-enabled=true
+# pcs property set stonith-enabled=true
 ```
 
 
@@ -740,22 +792,24 @@ pcs property set stonith-enabled=true
 **Verificar propiedad**
 
 ```bash
-pcs property config
+# pcs property config
 ```
 
 
 **Validar configuración general**
 
 ```bash
-pcs status
+# pcs status
 ```
 
 ---
 &nbsp;
 
-# FASE 7 — Preparación del Almacenamiento Compartido
+## FASE 7 — Preparación del Almacenamiento Compartido
 
 ⚠️ Debido a cambios en Rocky Linux 10, la arquitectura soportada utiliza:
+
+&nbsp;
 
 ```text
 LVM-activate
@@ -775,7 +829,7 @@ Resilient Storage
 **Validar disco compartido**
 
 ```bash
-lsblk
+# lsblk
 ```
 
 
@@ -784,7 +838,7 @@ lsblk
 Ejecutar en todos los nodos:
 
 ```bash
-lvmdevices --adddev /dev/sdb
+# lvmdevices --adddev /dev/sdb
 ```
 
 ---
@@ -792,17 +846,21 @@ lvmdevices --adddev /dev/sdb
 **Validar dispositivo registrado**
 
 ```bash
-lvmdevices
+# lvmdevices
 ```
 
 ---
 
 **Crear Physical Volume**
 
-Ejecutar únicamente en nodo1:
+⚠️ <small>Aplicar en: **nodo1**</small>
+
+&nbsp;
+
+Ejecutar:
 
 ```bash
-pvcreate /dev/sdb
+# pvcreate /dev/sdb
 ```
 
 
@@ -810,14 +868,14 @@ pvcreate /dev/sdb
 **Validar PV**
 
 ```bash
-pvs
+# pvs
 ```
 
 
 **Crear Volume Group**
 
 ```bash
-vgcreate vg_datos_ha /dev/sdb
+# vgcreate vg_datos_ha /dev/sdb
 ```
 
 ---
@@ -825,24 +883,21 @@ vgcreate vg_datos_ha /dev/sdb
 **Validar VG**
 
 ```bash
-vgs
-```
-
-Ejemplo:
-
-```text
-VG          #PV #LV Attr   VSize
-vg_datos_ha   1   0 wz--n- 15.00g
+# vgs
 ```
 
 ---
 
 **Forzar descubrimiento en nodos secundarios**
 
-Ejecutar en nodo2 y nodo3:
+⚠️ <small>Aplicar en: **nodo2 y nodo3**</small>
+
+&nbsp;
+
+Ejecutar:
 
 ```bash
-vgscan
+# vgscan
 ```
 
 ---
@@ -850,7 +905,7 @@ vgscan
 **Crear Logical Volume**
 
 ```bash
-lvcreate -l 100%FREE --name lv_almacenamiento vg_datos_ha
+# lvcreate -l 100%FREE --name lv_almacenamiento vg_datos_ha
 ```
 
 ---
@@ -858,14 +913,7 @@ lvcreate -l 100%FREE --name lv_almacenamiento vg_datos_ha
 **Validar LV**
 
 ```bash
-lvs
-```
-
-Ejemplo:
-
-```text
-LV                VG
-lv_almacenamiento vg_datos_ha
+# lvs
 ```
 
 ---
@@ -873,7 +921,7 @@ lv_almacenamiento vg_datos_ha
 **Formatear volumen XFS**
 
 ```bash
-mkfs.xfs /dev/vg_datos_ha/lv_almacenamiento
+# mkfs.xfs /dev/vg_datos_ha/lv_almacenamiento
 ```
 
 ---
@@ -881,13 +929,7 @@ mkfs.xfs /dev/vg_datos_ha/lv_almacenamiento
 **Validar Filesystem**
 
 ```bash
-blkid
-```
-
-Ejemplo:
-
-```text
-/dev/mapper/vg_datos_ha-lv_almacenamiento: TYPE="xfs"
+# blkid
 ```
 
 ---
@@ -897,7 +939,7 @@ Ejemplo:
 ⚠️ Paso obligatorio.
 
 ```bash
-vgchange -an vg_datos_ha
+# vgchange -an vg_datos_ha
 ```
 
 ---
@@ -905,7 +947,7 @@ vgchange -an vg_datos_ha
 **Verificar VG inactivo**
 
 ```bash
-vgs
+# vgs
 ```
 
 La columna Attr debe indicar que el VG no se encuentra activo.
@@ -913,18 +955,18 @@ La columna Attr debe indicar que el VG no se encuentra activo.
 ---
 &nbsp;
 
-# FASE 8 — Configuración de Exclusión de Activación Automática
+## FASE 8 — Configuración de Exclusión de Activación Automática
+
+
+⚠️  <small>Aplicar en: **nodo1, nodo2 y nodo3**</small>
 
 &nbsp;
 
-⚠️ Ejecutar en todos los nodos.
-
----
 
 **Respaldar configuración LVM**
 
 ```bash
-cp /etc/lvm/lvm.conf /etc/lvm/lvm.conf.bak
+# cp /etc/lvm/lvm.conf /etc/lvm/lvm.conf.bak
 ```
 
 ---
@@ -932,7 +974,7 @@ cp /etc/lvm/lvm.conf /etc/lvm/lvm.conf.bak
 **Editar configuración**
 
 ```bash
-vi /etc/lvm/lvm.conf
+# vi /etc/lvm/lvm.conf
 ```
 
 ---
@@ -960,7 +1002,7 @@ activation {
 **Validar sintaxis**
 
 ```bash
-grep -n volume_list /etc/lvm/lvm.conf
+# grep -n volume_list /etc/lvm/lvm.conf
 ```
 
 ---
@@ -968,7 +1010,7 @@ grep -n volume_list /etc/lvm/lvm.conf
 **Regenerar initramfs**
 
 ```bash
-dracut -f --regenerate-all
+# dracut -f --regenerate-all
 ```
 
 ---
@@ -976,14 +1018,12 @@ dracut -f --regenerate-all
 **Verificar finalización correcta**
 
 ```bash
-echo $?
+# echo $?
 ```
 
-Resultado esperado:
+Resultado esperado **`0`**
 
-```text
-0
-```
+&nbsp;
 
 ---
 
@@ -992,7 +1032,7 @@ Resultado esperado:
 Ejecutar nodo por nodo.
 
 ```bash
-reboot
+# reboot
 ```
 
 ---
@@ -1000,7 +1040,7 @@ reboot
 **Validar que el VG compartido no se active automáticamente**
 
 ```bash
-lvs
+# lvs
 ```
 
 El volumen compartido no debe encontrarse montado ni activo.
@@ -1010,7 +1050,7 @@ El volumen compartido no debe encontrarse montado ni activo.
 **Validar estado general del Cluster**
 
 ```bash
-pcs status
+# pcs status
 ```
 
 Todos los nodos deben encontrarse Online.
@@ -1018,29 +1058,25 @@ Todos los nodos deben encontrarse Online.
 ---
 &nbsp;
 
-# FASE 9 — Creación de Recursos del Cluster
+## FASE 9 — Creación de Recursos del Cluster
 &nbsp;
 
-⚠️ Todos los comandos de esta fase se ejecutan únicamente desde:
+⚠️ <small>Aplicar en: **nodo1**</small>
 
-```text
-nodo1.laboratorio
-```
-
----
+&nbsp;
 
 **Crear recurso LVM-activate**
 
 ```bash
-pcs resource create vg_datos_ha ocf:heartbeat:LVM-activate vgname=vg_datos_ha vg_access_mode=tagging
+# pcs resource create vg_datos_ha ocf:heartbeat:LVM-activate vgname=vg_datos_ha vg_access_mode=tagging
 ```
 
----
+&nbsp;
 
 **Validar recurso**
 
 ```bash
-pcs resource config
+# pcs resource config
 ```
 
 ---
@@ -1050,7 +1086,7 @@ pcs resource config
 Ejecutar en todos los nodos:
 
 ```bash
-mkdir -p /datos
+# mkdir -p /datos
 ```
 
 ---
@@ -1058,7 +1094,7 @@ mkdir -p /datos
 **Crear recurso Filesystem**
 
 ```bash
-pcs resource create fs_datos ocf:heartbeat:Filesystem device="/dev/vg_datos_ha/lv_almacenamiento" directory="/datos" fstype="xfs"
+# pcs resource create fs_datos ocf:heartbeat:Filesystem device="/dev/vg_datos_ha/lv_almacenamiento" directory="/datos" fstype="xfs"
 ```
 
 ---
@@ -1066,7 +1102,7 @@ pcs resource create fs_datos ocf:heartbeat:Filesystem device="/dev/vg_datos_ha/l
 **Crear IP Virtual**
 
 ```bash
-pcs resource create vip_datos ocf:heartbeat:IPaddr2 ip=10.0.0.100 cidr_netmask=24
+# pcs resource create vip_datos ocf:heartbeat:IPaddr2 ip=10.0.0.100 cidr_netmask=24
 ```
 
 ---
@@ -1074,40 +1110,31 @@ pcs resource create vip_datos ocf:heartbeat:IPaddr2 ip=10.0.0.100 cidr_netmask=2
 **Verificar recursos creados**
 
 ```bash
-pcs resource show
+# pcs resource show
 ```
 
 ---
 
 &nbsp;
-# FASE 10 — Agrupación de Recursos
+## FASE 10 — Agrupación de Recursos
 
 &nbsp;
 
 **Crear grupo**
 
 ```bash
-pcs resource group add grupo_datos vg_datos_ha fs_datos vip_datos
+# pcs resource group add grupo_datos vg_datos_ha fs_datos vip_datos
 ```
 
----
+&nbsp;
 
 **Verificar grupo**
 
 ```bash
-pcs resource status
+# pcs resource status
 ```
 
-Ejemplo esperado:
-
-```text
-Resource Group: grupo_datos
-    vg_datos_ha
-    fs_datos
-    vip_datos
-```
-
----
+&nbsp;
 
 **Validar estado general**
 
@@ -1115,94 +1142,25 @@ Resource Group: grupo_datos
 pcs status
 ```
 
-Ejemplo:
-
-```text
-Cluster name: cluster_laboratorio
-
-Online:
-  nodo1
-  nodo2
-  nodo3
-
-Resource Group: grupo_datos
-
-  vg_datos_ha
-  fs_datos
-  vip_datos
-```
-
 ---
 
-# FASE 11 — Validación del Filesystem Compartido
-
-**Verificar montaje**
-
-```bash
-df -h
-```
-
-Ejemplo:
-
-```text
-/dev/mapper/vg_datos_ha-lv_almacenamiento
-```
-
-Montado sobre:
-
-```text
-/datos
-```
-
----
-
-**Crear archivo de prueba**
-
-```bash
-touch /datos/test_cluster.txt
-```
-
----
-
-**Validar escritura**
-
-```bash
-ls -l /datos
-```
-
----
-
-**Validar IP Virtual**
-
-```bash
-ip addr
-```
-
----
-
-**Probar conectividad**
-
-Desde otro servidor:
-
-```bash
-ping 10.0.0.100
-```
+&nbsp;
 
 ---
 
 &nbsp;
-# FASE 12 — Prueba de Failover
+## FASE 11 — Prueba de Failover
 &nbsp;
 
 **Identificar nodo activo**
 
 ```bash
-pcs status
+# pcs status
 ```
 
----
+&nbsp;
 
-**Paso 2 — Colocar nodo en standby**
+**Colocar nodo en standby**
 
 Ejemplo:
 
@@ -1210,12 +1168,12 @@ Ejemplo:
 pcs node standby nodo1.laboratorio
 ```
 
----
+&nbsp;
 
 **Verificar migración automática**
 
 ```bash
-pcs status
+# pcs status
 ```
 
 Validar:
@@ -1238,36 +1196,34 @@ Debe visualizarse:
 test_cluster.txt
 ```
 
----
+&nbsp;
 
 **Regresar nodo al Cluster**
 
 ```bash
-pcs node unstandby nodo1.laboratorio
+# pcs node unstandby nodo1.laboratorio
 ```
 
----
+&nbsp;
 
 **Verificar reintegración**
 
 ```bash
-pcs status
+# pcs status
 ```
 
-Todos los nodos deben aparecer:
-
-```text
-Online
-```
+Todos los nodos deben aparecer **Online**.
 
 ---
+&nbsp;
 
-# FASE 13 — Operación Diaria
+## FASE 12 — Operación Diaria
 
+&nbsp;
 **Estado general del Cluster**
 
 ```bash
-pcs status
+# pcs status
 ```
 
 ---
@@ -1275,47 +1231,47 @@ pcs status
 **Estado detallado**
 
 ```bash
-pcs status --full
+# pcs status --full
 ```
 
----
+&nbsp;
 
 **Ver recursos del cluster**
 
 ```bash
-pcs resource show
+# pcs resource show
 ```
 
----
+&nbsp;
 
 **Ver propiedades del cluster**
 
 ```bash
-pcs property config
+# pcs property config
 ```
 
----
+&nbsp;
 
 **Ver STONITH**
 
 ```bash
-pcs stonith config
+# pcs stonith config
 ```
 
----
+&nbsp;
 
 **Ver quorum**
 
 ```bash
-pcs quorum status
+# pcs quorum status
 ```
 
----
+&nbsp;
 
 **Ver configuración completa**
 
 ```bash
-pcs config
+# pcs config
 ```
 
 ---
@@ -1323,7 +1279,7 @@ pcs config
 **Poner nodo en mantenimiento**
 
 ```bash
-pcs node standby <nodo>
+# pcs node standby <nodo>
 ```
 
 ---
@@ -1331,7 +1287,7 @@ pcs node standby <nodo>
 **Regresar nodo a producción**
 
 ```bash
-pcs node unstandby <nodo>
+# pcs node unstandby <nodo>
 ```
 
 ---
@@ -1339,10 +1295,10 @@ pcs node unstandby <nodo>
 **Reiniciar recurso**
 
 ```bash
-pcs resource restart <recurso>
+# pcs resource restart <recurso>
 ```
 
----
+&nbsp;
 
 **Limpiar recurso fallido**
 
@@ -1350,117 +1306,118 @@ pcs resource restart <recurso>
 pcs resource cleanup
 ```
 
----
+&nbsp;
 
 **Limpiar recurso específico**
 
 ```bash
-pcs resource cleanup <recurso>
+# pcs resource cleanup <recurso>
 ```
 
 ---
 
 &nbsp;
 
-# FASE 14 — Troubleshooting
+## FASE 13 — Troubleshooting
+&nbsp;
 
-### Ver eventos del Cluster
+**Ver eventos del Cluster**
 
 ```bash
-pcs status --full
+# pcs status --full
 ```
 
----
+&nbsp;
 
-### Logs de Pacemaker
+**Logs de Pacemaker**
 
 ```bash
 journalctl -u pacemaker -f
 ```
 
----
+&nbsp;
 
-### Logs de Corosync
+**Logs de Corosync**
 
 ```bash
 journalctl -u corosync -f
 ```
 
----
+&nbsp;
 
-### Logs de SBD
+**Logs de SBD**
 
 ```bash
 journalctl -u sbd -f
 ```
 
----
+&nbsp;
 
-### Verificar membresía Corosync
+**Verificar membresía Corosync**
 
 ```bash
 corosync-quorumtool
 ```
 
----
+&nbsp;
 
-### Verificar transporte Corosync
+**Verificar transporte Corosync**
 
 ```bash
 corosync-cfgtool -s
 ```
 
----
+&nbsp;
 
-### Verificar recursos fallidos
+**Verificar recursos fallidos**
 
 ```bash
 pcs status
 ```
 
----
+&nbsp;
 
-### Ver slots SBD
+**Ver slots SBD**
 
 ```bash
 sbd -d /dev/sda list
 ```
 
----
+&nbsp;
 
-### Ver metadata SBD
+**Ver metadata SBD**
 
 ```bash
 sbd -d /dev/sda dump
 ```
 
----
+&nbsp;
 
-### Validar watchdog
+**Validar watchdog**
 
 ```bash
 ls -l /dev/watchdog
 ```
 
----
+&nbsp;
 
 
-### Verificar sesiones iSCSI
+**Verificar sesiones iSCSI**
 
 ```bash
 iscsiadm -m session
 ```
 
----
+&nbsp;
 
 
-### Verificar montaje
+**Verificar montaje**
 
 ```bash
 df -h
 ```
 
----
+&nbsp;
 
 # 🔍 Validaciones Post-instalación
 
