@@ -6484,6 +6484,7 @@ code {
 <li>Firewall habilitado.</li>
 <li>Resolución de nombres funcional.</li>
 <li>Conectividad entre nodos.</li>
+<li>Una direccion de IP Publica y una Privada por host.</li>
 <li>Sincronización horaria mediante NTP.</li>
 </ul>
 <h3 id="topologia-de-ejemplo">Topología de ejemplo</h3>
@@ -6513,21 +6514,22 @@ code {
 </tr>
 </tbody>
 </table>
-<p><small>El nodo4 es la maquina que simula la cabina SAN </small></p>
+<p><small>El nodo4 es la maquina que simula la cabina SAN por iSCSI</small></p>
+<div class="admonition info">
+<p class="admonition-title">Info</p>
+<p>Antes de iniciar la Fase 1 de este procedimiento, se asume que las máquinas virtuales ya fueron desplegadas y configuradas conforme a lo establecido en el runbook Configuración de Laboratorio.</p>
+<p>Esta validación previa garantiza que todos los componentes, dependencias y parámetros requeridos para el entorno se encuentran correctamente preparados, permitiendo ejecutar el laboratorio de Alta Disponibilidad de manera controlada y sin contratiempos derivados de configuraciones pendientes o incompletas.</p>
+<p>En caso de que alguna de las configuraciones descritas en el runbook no haya sido aplicada, se recomienda completarla antes de continuar con las siguientes fases del procedimiento.</p>
+</div>
 <hr />
 <p>&nbsp;</p>
 <h1 id="inicio-del-procedimiento">🚀 Inicio del Procedimiento</h1>
 <h2 id="fase-1-configuracion-de-red-y-resolucion-de-nombres">FASE 1 — Configuración de Red y Resolución de Nombres</h2>
 <p>&nbsp;</p>
-<p>Antes de iniciar la Fase 1 de este procedimiento, se asume que las máquinas virtuales ya fueron desplegadas y configuradas conforme a lo establecido en el runbook Configuración de Laboratorio.</p>
-<p>Esta validación previa garantiza que todos los componentes, dependencias y parámetros requeridos para el entorno se encuentran correctamente preparados, permitiendo ejecutar el laboratorio de Alta Disponibilidad de manera controlada y sin contratiempos derivados de configuraciones pendientes o incompletas.</p>
-<p>En caso de que alguna de las configuraciones descritas en el runbook no haya sido aplicada, se recomienda completarla antes de continuar con las siguientes fases del procedimiento.</p>
-<hr />
-<p>&nbsp;</p>
-<h3 id="paso-1-configurar-resolucion-local">Paso 1 — Configurar resolución local</h3>
-<p><small>Aplicar en: nodo1, nodo2 y nodo3</small></p>
+<p><small>Aplicar en: <strong>nodo1, nodo2 y nodo3</strong></small></p>
+<p><strong>Configurar resolución local</strong></p>
 <p>Editar:</p>
-<div class="highlight"><pre><span></span><code>vi<span class="w"> </span>/etc/hosts
+<div class="highlight"><pre><span></span><code><span class="c1"># vi /etc/hosts</span>
 </code></pre></div>
 <p>Agregar:</p>
 <div class="highlight"><pre><span></span><code>10.0.0.11 nodo1.laboratorio nodo1
@@ -6541,12 +6543,12 @@ code {
 </ul>
 <hr />
 <p>&nbsp;</p>
-<h3 id="paso-3-validar-resolucion-dns-local">Paso 3 — Validar resolución DNS local</h3>
+<p><strong>Validar resolución DNS local</strong></p>
 <p><small>Aplicar en: nodo1, nodo2 y nodo3</small></p>
 <p>Ejecutar:</p>
-<div class="highlight"><pre><span></span><code>ping<span class="w"> </span>-c<span class="w"> </span><span class="m">2</span><span class="w"> </span>nodo1.laboratorio
-ping<span class="w"> </span>-c<span class="w"> </span><span class="m">2</span><span class="w"> </span>nodo2.laboratorio
-ping<span class="w"> </span>-c<span class="w"> </span><span class="m">2</span><span class="w"> </span>nodo3.laboratorio
+<div class="highlight"><pre><span></span><code><span class="c1"># ping -c 2 nodo1.laboratorio</span>
+<span class="c1"># ping -c 2 nodo2.laboratorio</span>
+<span class="c1"># ping -c 2 nodo3.laboratorio</span>
 </code></pre></div>
 <ul>
 <li>El comando envía dos mensajes ICMP al host especificado para verificar la conectividad de red y confirmar que el nombre del servidor puede resolverse correctamente.<ul>
@@ -6558,10 +6560,10 @@ ping<span class="w"> </span>-c<span class="w"> </span><span class="m">2</span><s
 </ul>
 <hr />
 <p>&nbsp;</p>
-<h3 id="paso-4-abrir-puertos-de-alta-disponibilidad">Paso 4 — Abrir puertos de Alta Disponibilidad</h3>
+<p><strong>Abrir puertos de Alta Disponibilidad</strong> </p>
 <p><small>Aplicar en: nodo1, nodo2 y nodo3</small></p>
 <p>Ejecutar:</p>
-<div class="highlight"><pre><span></span><code>firewall-cmd<span class="w"> </span>--permanent<span class="w"> </span>--add-service<span class="o">=</span>high-availability
+<div class="highlight"><pre><span></span><code><span class="c1"># firewall-cmd --permanent --add-service=high-availability</span>
 </code></pre></div>
 <ul>
 <li>El comando agrega de forma permanente la regla de firewall necesaria para permitir las comunicaciones utilizadas por los servicios de alta disponibilidad, como Pacemaker y Corosync.<ul>
@@ -6572,7 +6574,7 @@ ping<span class="w"> </span>-c<span class="w"> </span><span class="m">2</span><s
 </li>
 </ul>
 <p>&nbsp;</p>
-<div class="highlight"><pre><span></span><code>firewall-cmd<span class="w"> </span>--reload
+<div class="highlight"><pre><span></span><code><span class="c1"># firewall-cmd --reload</span>
 </code></pre></div>
 <ul>
 <li>El comando recarga la configuración de firewalld para aplicar los cambios realizados en las reglas o servicios configurados previamente.<ul>
@@ -6582,7 +6584,7 @@ ping<span class="w"> </span>-c<span class="w"> </span><span class="m">2</span><s
 </li>
 </ul>
 <p>&nbsp;</p>
-<div class="highlight"><pre><span></span><code>firewall-cmd<span class="w"> </span>--list-services
+<div class="highlight"><pre><span></span><code><span class="c1"># firewall-cmd --list-services</span>
 </code></pre></div>
 <ul>
 <li>El comando muestra la lista de servicios actualmente permitidos en la configuración activa del firewall, permitiendo verificar qué reglas de acceso se encuentran habilitadas.<ul>
@@ -6595,22 +6597,78 @@ ping<span class="w"> </span>-c<span class="w"> </span><span class="m">2</span><s
 <p>&nbsp;</p>
 <h2 id="fase-2-configuracion-de-almacenamiento-compartido-iscsi">FASE 2 — Configuración de Almacenamiento Compartido iSCSI</h2>
 <p>&nbsp;</p>
-<h3 id="paso-1-instalar-utilerias-iscsi">Paso 1 — Instalar utilerías iSCSI</h3>
+<p>⚠️ <small>Aplicar en: <strong>nodo4</strong></small></p>
+<p><strong>Habilitar los puertos para iscsi en el firewall</strong></p>
+<div class="highlight"><pre><span></span><code><span class="c1"># firewall-cmd --permanent --add-service=iscsi-target</span>
+</code></pre></div>
+<ul>
+<li>El comando habilita de forma permanente el servicio de iSCSI Target en el firewall, permitiendo que otros sistemas puedan descubrir y conectarse al almacenamiento exportado por el servidor iSCSI.<ul>
+<li><code>firewall-cmd</code>: Herramienta utilizada para administrar reglas del firewall en sistemas que usan firewalld.</li>
+<li><code>--permanent</code>: Indica que la regla se guardará de forma permanente y persistirá después de reiniciar el sistema.</li>
+<li><code>--add-service=iscsi-target</code>: Habilita el servicio predefinido de iSCSI Target, abriendo los puertos necesarios para la comunicación iSCSI.</li>
+</ul>
+</li>
+</ul>
+<p>&nbsp;</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># firewall-cmd --reload</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><span class="c1"># dnf install targetcli -y</span>
+</code></pre></div>
+<ul>
+<li>El comando instala la herramienta <code>targetcli</code>, utilizada para configurar y administrar targets iSCSI en el sistema, permitiendo exportar almacenamiento en red.<ul>
+<li><code>dnf</code>: Gestor de paquetes utilizado en distribuciones basadas en Red Hat (como RHEL, Rocky Linux o AlmaLinux) para instalar, actualizar o eliminar software.</li>
+<li><code>install</code>: Indica que se realizará la instalación de un paquete.</li>
+<li><code>targetcli</code>: Paquete que proporciona una interfaz para configurar targets iSCSI (LIO).</li>
+<li><code>-y</code>: Responde automáticamente “sí” a todas las confirmaciones durante la instalación, evitando interacción manual.</li>
+</ul>
+</li>
+</ul>
+<p>&nbsp;</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># systemctl enable --now target</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><span class="c1"># lsblk -l</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><span class="c1"># targetcli</span>
+</code></pre></div>
+<ul>
+<li>El comando inicia la interfaz interactiva de <code>targetcli</code>, utilizada para configurar y administrar targets iSCSI en el sistema mediante el framework LIO.<ul>
+<li><code>targetcli</code>: Herramienta de línea de comandos interactiva para gestionar la configuración de targets iSCSI (LIO), incluyendo creación de backstores, LUNs, ACLs y exportación de almacenamiento.</li>
+</ul>
+</li>
+</ul>
+<p>&nbsp;</p>
+<div class="highlight"><pre><span></span><code>/backstores/block<span class="w"> </span>create<span class="w"> </span><span class="nv">name</span><span class="o">=</span>san-quorum<span class="w"> </span><span class="nv">dev</span><span class="o">=</span>/dev/nvme0n2
+
+/backstores/block<span class="w"> </span>create<span class="w"> </span><span class="nv">name</span><span class="o">=</span>san-datos<span class="w"> </span><span class="nv">dev</span><span class="o">=</span>/dev/nvme0n3
+
+/iscsi<span class="w"> </span>create<span class="w"> </span>iqn.2026-06.laboratorio.san:storage
+
+<span class="nb">cd</span><span class="w"> </span>/iscsi/iqn.2026-06.laboratorio.san:storage/tpg1/
+
+luns/<span class="w"> </span>create<span class="w"> </span>/backstores/block/san-quorum
+
+luns/<span class="w"> </span>create<span class="w"> </span>/backstores/block/san-datos
+
+<span class="nb">set</span><span class="w"> </span>attribute<span class="w"> </span><span class="nv">authentication</span><span class="o">=</span><span class="m">0</span><span class="w"> </span><span class="nv">demo_mode_write_protect</span><span class="o">=</span><span class="m">0</span><span class="w"> </span><span class="nv">generate_node_acls</span><span class="o">=</span><span class="m">1</span>
+
+<span class="nb">exit</span>
+</code></pre></div>
+<hr />
+<p>&nbsp;</p>
+<p><strong>Instalar utilerías iSCSI</strong></p>
 <p><small>Aplicar en: nodo1, nodo2 y nodo3</small></p>
 <p>Ejecutar:</p>
-<div class="highlight"><pre><span></span><code>dnf<span class="w"> </span>install<span class="w"> </span>iscsi-initiator-utils<span class="w"> </span>-y
+<div class="highlight"><pre><span></span><code><span class="c1"># dnf install iscsi-initiator-utils -y</span>
 </code></pre></div>
-<div class="highlight"><pre><span></span><code>systemctl<span class="w"> </span><span class="nb">enable</span><span class="w"> </span>--now<span class="w"> </span>iscsid
+<div class="highlight"><pre><span></span><code><span class="c1"># systemctl enable --now iscsid</span>
 </code></pre></div>
 <ul>
 <li>¿Qué hace?: Descarga las utilidades de almacenamiento por red e inicia el 
   demonio encargado de simular discos duros locales sobre la red TCP/IP.</li>
 </ul>
-<hr />
 <p>&nbsp;</p>
-<h3 id="paso-3-descubrir-targets-iscsi">Paso 3 — Descubrir Targets iSCSI</h3>
-<p><small>Aplicar en: nodo1, nodo2 y nodo3</small></p>
-<div class="highlight"><pre><span></span><code>iscsiadm<span class="w"> </span>-m<span class="w"> </span>discovery<span class="w"> </span>-t<span class="w"> </span>sendtargets<span class="w"> </span>-p<span class="w"> </span><span class="m">10</span>.0.0.20
+<p><strong>Descubrir Targets iSCSI</strong></p>
+<div class="highlight"><pre><span></span><code><span class="c1"># iscsiadm -m discovery -t sendtargets -p 10.0.0.20</span>
 </code></pre></div>
 <ul>
 <li>El comando realiza el descubrimiento de los targets iSCSI disponibles en el servidor especificado, permitiendo identificar los recursos de almacenamiento que pueden ser utilizados por el sistema.<ul>
@@ -6621,10 +6679,8 @@ ping<span class="w"> </span>-c<span class="w"> </span><span class="m">2</span><s
 </ul>
 </li>
 </ul>
-<hr />
 <p>&nbsp;</p>
-<h3 id="paso-4-iniciar-sesion-contra-la-cabina-san">Paso 4 — Iniciar sesión contra la cabina SAN</h3>
-<p><small>Aplicar en: nodo1, nodo2 y nodo3</small></p>
+<p><strong>Iniciar sesión contra la cabina SAN</strong></p>
 <div class="highlight"><pre><span></span><code>iscsiadm<span class="w"> </span>-m<span class="w"> </span>node<span class="w"> </span>-T<span class="w"> </span>iqn.2026-06.laboratorio.san:storage<span class="w"> </span>-p<span class="w"> </span><span class="m">10</span>.0.0.20<span class="w"> </span>--login
 </code></pre></div>
 <ul>
@@ -6637,15 +6693,12 @@ ping<span class="w"> </span>-c<span class="w"> </span><span class="m">2</span><s
 </ul>
 </li>
 </ul>
-<hr />
 <p>&nbsp;</p>
-<h3 id="paso-5-validar-nuevos-discos">Paso 5 — Validar nuevos discos</h3>
-<p><small>Aplicar en: nodo1, nodo2 y nodo3</small></p>
+<p><strong>Validar nuevos discos</strong></p>
 <div class="highlight"><pre><span></span><code>lsblk
 </code></pre></div>
-<hr />
 <p>&nbsp;</p>
-<h3 id="paso-6-configurar-inicio-automatico-de-sesiones-iscsi">Paso 6 — Configurar inicio automático de sesiones iSCSI</h3>
+<p><strong>Configurar inicio automático de sesiones iSCSI</strong></p>
 <div class="highlight"><pre><span></span><code>iscsiadm<span class="w"> </span>-m<span class="w"> </span>node<span class="w"> </span>--op<span class="w"> </span>update<span class="w"> </span>-n<span class="w"> </span>node.startup<span class="w"> </span>-v<span class="w"> </span>automatic
 </code></pre></div>
 <ul>
@@ -6673,8 +6726,8 @@ ping<span class="w"> </span>-c<span class="w"> </span><span class="m">2</span><s
 <p>&nbsp;</p>
 <h2 id="fase-3-instalacion-de-pacemaker-corosync-y-pcs">FASE 3 — Instalación de Pacemaker, Corosync y PCS</h2>
 <p>&nbsp;</p>
-<h3 id="paso-1-habilitar-repositorio-high-availability">Paso 1 — Habilitar repositorio High Availability</h3>
-<p><small>Aplicar en: nodo1, nodo2 y nodo3</small></p>
+<p><small>Aplicar en: <strong>nodo1, nodo2 y nodo3</strong></small></p>
+<p><strong>Habilitar repositorio High Availability</strong></p>
 <p>Ejecutar:</p>
 <div class="highlight"><pre><span></span><code>dnf<span class="w"> </span>config-manager<span class="w"> </span>--set-enabled<span class="w"> </span>highavailability
 </code></pre></div>
