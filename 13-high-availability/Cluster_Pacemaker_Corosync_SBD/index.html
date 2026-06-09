@@ -6449,12 +6449,12 @@
 <style>
 p,
 li {
-  font-size: 14px;
+  font-size: 15px;
   line-height: 1.6;
 }
 
 code {
-  font-size: 14px;
+  font-size: 15px;
 }
 </style>
 
@@ -6646,8 +6646,17 @@ code {
 </ul>
 </li>
 </ul>
+<p>&nbsp;</p>
 <div class="highlight"><pre><span></span><code><span class="c1"># lsblk -l</span>
 </code></pre></div>
+<ul>
+<li>El comando muestra la lista de dispositivos de bloques del sistema en formato de lista, permitiendo identificar discos, particiones y volúmenes disponibles, incluyendo aquellos conectados por iSCSI.<ul>
+<li><code>lsblk</code>: Herramienta utilizada para listar dispositivos de bloque como discos, particiones y volúmenes lógicos.</li>
+<li><code>-l</code>: Muestra la salida en formato de lista (uno por línea) en lugar de una vista en árbol.</li>
+</ul>
+</li>
+</ul>
+<p>&nbsp;</p>
 <div class="highlight"><pre><span></span><code><span class="c1"># targetcli</span>
 </code></pre></div>
 <ul>
@@ -6673,10 +6682,13 @@ luns/<span class="w"> </span>create<span class="w"> </span>/backstores/block/san
 
 <span class="nb">exit</span>
 </code></pre></div>
+<ul>
+<li>Configura un target iSCSI en la cabina SAN, creando dos discos exportados (san-quorum y san-datos) a partir de dispositivos locales, definiendo el IQN del target, asignando ambos como LUNs disponibles para los nodos del clúster y habilitando el acceso sin autenticación para que puedan conectarse y utilizarlos como almacenamiento compartido.</li>
+</ul>
 <hr />
 <p>&nbsp;</p>
 <p><strong>Instalar utilerías iSCSI</strong></p>
-<p><small>Aplicar en: nodo1, nodo2 y nodo3</small></p>
+<p><small>Aplicar en: <strong>nodo1, nodo2 y nodo3</strong></small></p>
 <p>Ejecutar:</p>
 <div class="highlight"><pre><span></span><code><span class="c1"># dnf install iscsi-initiator-utils -y</span>
 </code></pre></div>
@@ -6711,7 +6723,7 @@ luns/<span class="w"> </span>create<span class="w"> </span>/backstores/block/san
 </ul>
 <p>&nbsp;</p>
 <p><strong>Iniciar sesión contra la cabina SAN</strong></p>
-<div class="highlight"><pre><span></span><code>iscsiadm<span class="w"> </span>-m<span class="w"> </span>node<span class="w"> </span>-T<span class="w"> </span>iqn.2026-06.laboratorio.san:storage<span class="w"> </span>-p<span class="w"> </span><span class="m">10</span>.0.0.20<span class="w"> </span>--login
+<div class="highlight"><pre><span></span><code><span class="c1"># iscsiadm -m node -T iqn.2026-06.laboratorio.san:storage -p 10.0.0.20 --login</span>
 </code></pre></div>
 <ul>
 <li>El comando establece una conexión con el target iSCSI especificado, permitiendo que el sistema acceda al almacenamiento remoto exportado por el servidor iSCSI.<ul>
@@ -6725,11 +6737,18 @@ luns/<span class="w"> </span>create<span class="w"> </span>/backstores/block/san
 </ul>
 <p>&nbsp;</p>
 <p><strong>Validar nuevos discos</strong></p>
-<div class="highlight"><pre><span></span><code>lsblk
+<div class="highlight"><pre><span></span><code><span class="c1"># lsblk</span>
 </code></pre></div>
+<ul>
+<li>El comando muestra la lista de dispositivos de bloques del sistema en formato de lista, permitiendo identificar discos, particiones y volúmenes disponibles, incluyendo aquellos conectados por iSCSI.<ul>
+<li><code>lsblk</code>: Herramienta utilizada para listar dispositivos de bloque como discos, particiones y volúmenes lógicos.</li>
+<li><code>-l</code>: Muestra la salida en formato de lista (uno por línea) en lugar de una vista en árbol.</li>
+</ul>
+</li>
+</ul>
 <p>&nbsp;</p>
 <p><strong>Configurar inicio automático de sesiones iSCSI</strong></p>
-<div class="highlight"><pre><span></span><code>iscsiadm<span class="w"> </span>-m<span class="w"> </span>node<span class="w"> </span>--op<span class="w"> </span>update<span class="w"> </span>-n<span class="w"> </span>node.startup<span class="w"> </span>-v<span class="w"> </span>automatic
+<div class="highlight"><pre><span></span><code><span class="c1"># iscsiadm -m node --op update -n node.startup -v automatic</span>
 </code></pre></div>
 <ul>
 <li>El comando configura los nodos iSCSI para que las conexiones se establezcan automáticamente al iniciar el sistema operativo, asegurando que los discos remotos estén disponibles después de cada reinicio.<ul>
@@ -6742,7 +6761,7 @@ luns/<span class="w"> </span>create<span class="w"> </span>/backstores/block/san
 </li>
 </ul>
 <p>&nbsp;</p>
-<div class="highlight"><pre><span></span><code>systemctl<span class="w"> </span>restart<span class="w"> </span>iscsid
+<div class="highlight"><pre><span></span><code><span class="c1"># systemctl restart iscsid</span>
 </code></pre></div>
 <ul>
 <li>El comando reinicia el servicio iscsid, responsable de gestionar las conexiones y sesiones iSCSI en el sistema. Esto permite aplicar cambios recientes en la configuración y restablecer la comunicación con los dispositivos de almacenamiento iSCSI.<ul>
@@ -6759,35 +6778,85 @@ luns/<span class="w"> </span>create<span class="w"> </span>/backstores/block/san
 <p><small>Aplicar en: <strong>nodo1, nodo2 y nodo3</strong></small></p>
 <p><strong>Habilitar repositorio High Availability</strong></p>
 <p>Ejecutar:</p>
-<div class="highlight"><pre><span></span><code>dnf<span class="w"> </span>config-manager<span class="w"> </span>--set-enabled<span class="w"> </span>highavailability
+<div class="highlight"><pre><span></span><code><span class="c1"># dnf config-manager --set-enabled highavailability</span>
 </code></pre></div>
-<div class="highlight"><pre><span></span><code>dnf<span class="w"> </span>clean<span class="w"> </span>all
-</code></pre></div>
-<div class="highlight"><pre><span></span><code>dnf<span class="w"> </span>install<span class="w"> </span>-y<span class="w"> </span>pacemaker<span class="w"> </span>pcs<span class="w"> </span>corosync<span class="w"> </span>sbd<span class="w"> </span>fence-agents-sbd
-</code></pre></div>
-<div class="highlight"><pre><span></span><code>rpm<span class="w"> </span>-qa<span class="w"> </span><span class="p">|</span><span class="w"> </span>egrep<span class="w"> </span><span class="s2">&quot;pacemaker|pcs|corosync|sbd&quot;</span>
-</code></pre></div>
-<div class="highlight"><pre><span></span><code>systemctl<span class="w"> </span><span class="nb">enable</span><span class="w"> </span>--now<span class="w"> </span>pcsd
-</code></pre></div>
-<hr />
+<ul>
+<li>El comando habilita el repositorio de alta disponibilidad (High Availability) en el sistema, permitiendo la instalación de paquetes necesarios para clústeres como Pacemaker, Corosync y herramientas relacionadas.<ul>
+<li><code>dnf</code>: Gestor de paquetes utilizado en distribuciones basadas en Red Hat para instalar, actualizar y gestionar software.</li>
+<li><code>config-manager</code>: Subcomando de DNF que permite gestionar repositorios del sistema.</li>
+<li><code>--set-enabled</code>: Activa un repositorio deshabilitado previamente.</li>
+<li><code>highavailability</code>: Nombre del repositorio que contiene paquetes relacionados con soluciones de alta disponibilidad.</li>
+</ul>
+</li>
+</ul>
 <p>&nbsp;</p>
-<h3 id="paso-6-configurar-contrasena-del-usuario-hacluster">Paso 6 — Configurar contraseña del usuario hacluster</h3>
-<p><small>Aplicar en: nodo1, nodo2 y nodo3</small></p>
+<div class="highlight"><pre><span></span><code><span class="c1"># dnf clean all</span>
+</code></pre></div>
+<ul>
+<li>El comando limpia la caché local de DNF, eliminando metadatos y paquetes almacenados para forzar que el sistema descargue información actualizada de los repositorios.<ul>
+<li><code>dnf</code>: Gestor de paquetes utilizado en sistemas basados en Red Hat para instalar y administrar software.</li>
+<li><code>clean</code>: Subcomando que indica que se realizará una limpieza de la caché.</li>
+<li><code>all</code>: Especifica que se eliminará toda la caché de DNF (metadatos, paquetes descargados y datos temporales).</li>
+</ul>
+</li>
+</ul>
+<p>&nbsp;</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># dnf install -y pacemaker pcs corosync sbd fence-agents-sbd</span>
+</code></pre></div>
+<ul>
+<li>El comando instala los componentes necesarios para configurar un clúster de alta disponibilidad basado en Pacemaker, Corosync y SBD, incluyendo herramientas de gestión y agentes de fencing.<ul>
+<li><code>install</code>: Indica que se realizará la instalación de paquetes.</li>
+<li><code>-y</code>: Acepta automáticamente todas las confirmaciones durante la instalación.</li>
+<li><code>pacemaker</code>: Motor de clúster encargado de gestionar recursos y garantizar alta disponibilidad.</li>
+<li><code>pcs</code>: Herramienta de administración para configurar y gestionar el clúster.</li>
+<li><code>corosync</code>: Sistema de mensajería que permite la comunicación entre nodos del clúster.</li>
+<li><code>sbd</code>: Servicio de STONITH Block Device utilizado para fencing en entornos de alta disponibilidad.</li>
+<li><code>fence-agents-sbd</code>: Paquete que proporciona agentes de fencing para integrar SBD con Pacemaker.</li>
+</ul>
+</li>
+</ul>
+<p>&nbsp;</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># rpm -qa | egrep &quot;pacemaker|pcs|corosync|sbd&quot;</span>
+</code></pre></div>
+<ul>
+<li>El comando lista los paquetes instalados en el sistema y filtra aquellos relacionados con Pacemaker, PCS, Corosync y SBD para verificar que los componentes del clúster estén correctamente instalados.<ul>
+<li><code>rpm</code>: Herramienta de gestión de paquetes en sistemas basados en Red Hat.</li>
+<li><code>-qa</code>: Lista todos los paquetes instalados en el sistema.</li>
+<li><code>|</code>: Redirige la salida del comando anterior como entrada del siguiente.</li>
+<li><code>egrep</code>: Filtra la salida usando expresiones regulares extendidas.</li>
+<li><code>"pacemaker|pcs|corosync|sbd"</code>: Expresión que busca paquetes que coincidan con cualquiera de esos nombres.</li>
+</ul>
+</li>
+</ul>
+<p>&nbsp;</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># systemctl enable --now pcsd</span>
+</code></pre></div>
+<ul>
+<li>El comando habilita e inicia el servicio <code>pcsd</code>, que es el demonio encargado de la comunicación y administración remota del clúster mediante la herramienta PCS.<ul>
+<li><code>systemctl</code>: Herramienta utilizada para administrar servicios gestionados por systemd.</li>
+<li><code>enable</code>: Configura el servicio para que se inicie automáticamente al arrancar el sistema.</li>
+<li><code>--now</code>: Inicia el servicio inmediatamente sin necesidad de reiniciar.</li>
+<li><code>pcsd</code>: Servicio (daemon) que permite la administración y configuración del clúster Pacemaker/Corosync mediante PCS.</li>
+</ul>
+</li>
+</ul>
+<p>&nbsp;</p>
+<p><strong>Configurar contraseña del usuario hacluster</strong></p>
+<p><small>Aplicar en: <strong>nodo1, nodo2 y nodo3</strong></small></p>
 <p>Ejecutar:</p>
-<div class="highlight"><pre><span></span><code>passwd<span class="w"> </span>hacluster
+<div class="highlight"><pre><span></span><code><span class="c1"># passwd hacluster</span>
 </code></pre></div>
 <p>Utilizar exactamente la misma contraseña en todos los servidores.</p>
-<hr />
 <p>&nbsp;</p>
-<h3 id="paso-7-validar-servicio-pcsd">Paso 7 — Validar servicio pcsd</h3>
-<div class="highlight"><pre><span></span><code>systemctl<span class="w"> </span>status<span class="w"> </span>pcsd
+<p><strong>Validar servicio pcsd</strong></p>
+<div class="highlight"><pre><span></span><code><span class="c1"># systemctl status pcsd</span>
 </code></pre></div>
 <p>Debe mostrarse:</p>
 <div class="highlight"><pre><span></span><code>active (running)
 </code></pre></div>
 <hr />
 <p>&nbsp;</p>
-<h1 id="fase-4-creacion-del-cluster">FASE 4 — Creación del Cluster</h1>
+<h2 id="fase-4-creacion-del-cluster">FASE 4 — Creación del Cluster</h2>
 <p>⚠️ <small>Aplicar SOLO en: <strong>nodo1</strong></small></p>
 <p>&nbsp;</p>
 <p><strong>Autenticar nodos</strong></p>
@@ -6809,11 +6878,11 @@ luns/<span class="w"> </span>create<span class="w"> </span>/backstores/block/san
 </ul>
 <p>&nbsp;</p>
 <p><strong>Validar autenticación</strong></p>
-<div class="highlight"><pre><span></span><code>pcs<span class="w"> </span>host<span class="w"> </span>auth
+<div class="highlight"><pre><span></span><code><span class="c1"># pcs host auth</span>
 </code></pre></div>
 <p>&nbsp;</p>
 <p><strong>Crear Cluster</strong></p>
-<div class="highlight"><pre><span></span><code>pcs<span class="w"> </span>cluster<span class="w"> </span>setup<span class="w"> </span>cluster_laboratorio<span class="w"> </span>nodo1.laboratorio<span class="w"> </span>nodo2.laboratorio<span class="w"> </span>nodo3.laboratorio
+<div class="highlight"><pre><span></span><code><span class="c1"># pcs cluster setup cluster_laboratorio nodo1.laboratorio nodo2.laboratorio nodo3.laboratorio</span>
 </code></pre></div>
 <ul>
 <li>El comando crea y configura un nuevo clúster de Pacemaker/Corosync utilizando los nodos especificados, estableciendo la configuración inicial necesaria para la comunicación y gestión de alta disponibilidad.<ul>
@@ -6826,7 +6895,7 @@ luns/<span class="w"> </span>create<span class="w"> </span>/backstores/block/san
 </ul>
 <p>&nbsp;</p>
 <p><strong>Arrancar Cluster</strong></p>
-<div class="highlight"><pre><span></span><code>pcs<span class="w"> </span>cluster<span class="w"> </span>start<span class="w"> </span>--all
+<div class="highlight"><pre><span></span><code><span class="c1"># pcs cluster start --all</span>
 </code></pre></div>
 <ul>
 <li>El comando inicia los servicios del clúster en todos los nodos configurados, permitiendo que Pacemaker y Corosync comiencen a operar y gestionar los recursos de alta disponibilidad.<ul>
@@ -6838,7 +6907,7 @@ luns/<span class="w"> </span>create<span class="w"> </span>/backstores/block/san
 </ul>
 <p>&nbsp;</p>
 <p><strong>Habilitar inicio automático</strong>
-<div class="highlight"><pre><span></span><code>pcs<span class="w"> </span>cluster<span class="w"> </span><span class="nb">enable</span><span class="w"> </span>--all
+<div class="highlight"><pre><span></span><code><span class="c1"># pcs cluster enable --all</span>
 </code></pre></div></p>
 <ul>
 <li>El comando habilita los servicios del clúster en todos los nodos configurados para que se inicien automáticamente durante el arranque del sistema operativo.<ul>
@@ -6850,7 +6919,7 @@ luns/<span class="w"> </span>create<span class="w"> </span>/backstores/block/san
 </ul>
 <p>&nbsp;</p>
 <p><strong>Verificar estado del cluster</strong></p>
-<div class="highlight"><pre><span></span><code>pcs<span class="w"> </span>status
+<div class="highlight"><pre><span></span><code><span class="c1"># pcs status</span>
 </code></pre></div>
 <ul>
 <li>El comando muestra el estado general del clúster, incluyendo los nodos, recursos, servicios y condiciones actuales de Pacemaker y Corosync.<ul>
@@ -6861,7 +6930,7 @@ luns/<span class="w"> </span>create<span class="w"> </span>/backstores/block/san
 </ul>
 <p>&nbsp;</p>
 <p><strong>Validar quorum</strong></p>
-<div class="highlight"><pre><span></span><code>pcs<span class="w"> </span>quorum<span class="w"> </span>status
+<div class="highlight"><pre><span></span><code><span class="c1"># pcs quorum status</span>
 </code></pre></div>
 <ul>
 <li>El comando muestra información detallada sobre el estado del quórum del clúster, permitiendo verificar si existe el número suficiente de nodos activos para mantener la operación y evitar situaciones de partición del clúster.<ul>
@@ -6872,7 +6941,7 @@ luns/<span class="w"> </span>create<span class="w"> </span>/backstores/block/san
 </ul>
 <p>&nbsp;</p>
 <p><strong>Validar estado de Corosync</strong></p>
-<div class="highlight"><pre><span></span><code>corosync-cfgtool<span class="w"> </span>-s
+<div class="highlight"><pre><span></span><code><span class="c1"># corosync-cfgtool -s</span>
 </code></pre></div>
 <ul>
 <li>El comando muestra el estado de la comunicación y conectividad de Corosync entre los nodos del clúster, permitiendo verificar que los enlaces de red se encuentren operativos.<ul>
@@ -6883,7 +6952,7 @@ luns/<span class="w"> </span>create<span class="w"> </span>/backstores/block/san
 </ul>
 <p>&nbsp;</p>
 <p><strong>Validar membresía del Cluster</strong></p>
-<div class="highlight"><pre><span></span><code>corosync-quorumtool
+<div class="highlight"><pre><span></span><code><span class="c1"># corosync-quorumtool</span>
 </code></pre></div>
 <ul>
 <li>El comando muestra información sobre el quórum del clúster, permitiendo verificar si existe el número suficiente de nodos activos para que el clúster pueda operar correctamente.<ul>
@@ -6893,16 +6962,16 @@ luns/<span class="w"> </span>create<span class="w"> </span>/backstores/block/san
 </ul>
 <hr />
 <p>&nbsp;</p>
-<h1 id="fase-5-configuracion-de-fencing-sbd">FASE 5 — Configuración de Fencing SBD</h1>
+<h2 id="fase-5-configuracion-de-fencing-sbd">FASE 5 — Configuración de Fencing SBD</h2>
 <p><small>Aplicar en: <strong>nodo1</strong></small></p>
 <p>⚠️ Esta fase protege al Cluster contra Split-Brain.</p>
 <p>&nbsp;</p>
 <p><strong>Validar disco de </strong>1GiB<strong> dedicado para SBD</strong></p>
-<div class="highlight"><pre><span></span><code>lsblk
+<div class="highlight"><pre><span></span><code><span class="c1"># lsblk</span>
 </code></pre></div>
 <p>&nbsp;</p>
 <p><strong>Inicializar disco SBD</strong></p>
-<div class="highlight"><pre><span></span><code>sbd<span class="w"> </span>-d<span class="w"> </span>/dev/sda<span class="w"> </span>create
+<div class="highlight"><pre><span></span><code><span class="c1"># sbd -d /dev/sda create</span>
 </code></pre></div>
 <ul>
 <li>El comando inicializa y crea la estructura SBD (STONITH Block Device) sobre el dispositivo especificado, preparándolo para ser utilizado como mecanismo de fencing en el clúster de alta disponibilidad.<ul>
@@ -6914,7 +6983,7 @@ luns/<span class="w"> </span>create<span class="w"> </span>/backstores/block/san
 </ul>
 <p>&nbsp;</p>
 <p><strong>Validar metadata SBD</strong></p>
-<div class="highlight"><pre><span></span><code>sbd<span class="w"> </span>-d<span class="w"> </span>/dev/sda<span class="w"> </span>dump
+<div class="highlight"><pre><span></span><code><span class="c1"># sbd -d /dev/sda dump</span>
 </code></pre></div>
 <ul>
 <li>El comando muestra la información y los metadatos almacenados en el dispositivo SBD especificado, permitiendo verificar que la configuración se haya creado correctamente.<ul>
@@ -6928,7 +6997,7 @@ luns/<span class="w"> </span>create<span class="w"> </span>/backstores/block/san
 <p><strong>Registrar cada nodo en SBD</strong></p>
 <p>Ejecutar:
 <small>Aplicar en: <strong>nodo1, nodo2 y nodo3</strong></small></p>
-<div class="highlight"><pre><span></span><code>sbd<span class="w"> </span>-d<span class="w"> </span>/dev/sda<span class="w"> </span>allocate<span class="w"> </span><span class="k">$(</span>hostname<span class="k">)</span>
+<div class="highlight"><pre><span></span><code><span class="c1"># sbd -d /dev/sda allocate $(hostname)</span>
 </code></pre></div>
 <ul>
 <li>El comando asigna un slot en el dispositivo SBD al nodo actual, permitiendo que el clúster pueda gestionar operaciones de fencing y monitoreo para dicho nodo.<ul>
@@ -6941,7 +7010,7 @@ luns/<span class="w"> </span>create<span class="w"> </span>/backstores/block/san
 </ul>
 <p>&nbsp;</p>
 <p><strong>Validar slots registrados</strong></p>
-<div class="highlight"><pre><span></span><code>sbd<span class="w"> </span>-d<span class="w"> </span>/dev/sda<span class="w"> </span>list
+<div class="highlight"><pre><span></span><code><span class="c1"># sbd -d /dev/sda list</span>
 </code></pre></div>
 <ul>
 <li>El comando muestra la lista de slots configurados en el dispositivo SBD, permitiendo verificar qué nodos han sido registrados para las operaciones de fencing del clúster.<ul>
@@ -6953,7 +7022,7 @@ luns/<span class="w"> </span>create<span class="w"> </span>/backstores/block/san
 </ul>
 <p>&nbsp;</p>
 <p><strong>Cargar Watchdog del Kernel</strong></p>
-<div class="highlight"><pre><span></span><code>modprobe<span class="w"> </span>softdog
+<div class="highlight"><pre><span></span><code><span class="c1"># modprobe softdog</span>
 </code></pre></div>
 <ul>
 <li>El comando carga en el kernel el módulo <code>softdog</code>, habilitando un watchdog por software que puede ser utilizado por el clúster para detectar fallos y realizar acciones de recuperación o fencing cuando sea necesario.<ul>
@@ -6964,7 +7033,7 @@ luns/<span class="w"> </span>create<span class="w"> </span>/backstores/block/san
 </ul>
 <p>&nbsp;</p>
 <p><strong>Configurar carga automática</strong></p>
-<div class="highlight"><pre><span></span><code><span class="nb">echo</span><span class="w"> </span>softdog<span class="w"> </span>&gt;<span class="w"> </span>/etc/modules-load.d/softdog.conf
+<div class="highlight"><pre><span></span><code><span class="c1"># echo softdog &gt; /etc/modules-load.d/softdog.conf</span>
 </code></pre></div>
 <ul>
 <li>El comando configura el sistema para que el módulo <code>softdog</code> se cargue automáticamente durante el arranque, garantizando la disponibilidad del watchdog por software después de cada reinicio.<ul>
@@ -6976,7 +7045,7 @@ luns/<span class="w"> </span>create<span class="w"> </span>/backstores/block/san
 </ul>
 <p>&nbsp;</p>
 <p><strong>Validar watchdog</strong></p>
-<div class="highlight"><pre><span></span><code>ls<span class="w"> </span>-l<span class="w"> </span>/dev/watchdog
+<div class="highlight"><pre><span></span><code><span class="c1"># ls -l /dev/watchdog</span>
 </code></pre></div>
 <ul>
 <li>El comando muestra información detallada sobre el dispositivo <code>watchdog</code>, permitiendo verificar que el watchdog se encuentra disponible y correctamente creado en el sistema.<ul>
@@ -6989,7 +7058,7 @@ luns/<span class="w"> </span>create<span class="w"> </span>/backstores/block/san
 <p>&nbsp;</p>
 <p><strong>Configurar SBD</strong></p>
 <p>Editar:</p>
-<div class="highlight"><pre><span></span><code>vi<span class="w"> </span>/etc/sysconfig/sbd
+<div class="highlight"><pre><span></span><code><span class="c1"># vi /etc/sysconfig/sbd</span>
 </code></pre></div>
 <p>Configurar:</p>
 <div class="highlight"><pre><span></span><code><span class="nv">SBD_DEVICE</span><span class="o">=</span><span class="s2">&quot;/dev/sda&quot;</span>
@@ -6997,47 +7066,48 @@ luns/<span class="w"> </span>create<span class="w"> </span>/backstores/block/san
 </code></pre></div>
 <p>&nbsp;</p>
 <p><strong>Habilitar servicio SBD</strong></p>
-<div class="highlight"><pre><span></span><code>systemctl<span class="w"> </span><span class="nb">enable</span><span class="w"> </span>sbd
+<div class="highlight"><pre><span></span><code><span class="c1"># systemctl enable sbd</span>
 </code></pre></div>
 <p>&nbsp;</p>
 <p><strong>Reiniciar daemon</strong></p>
-<div class="highlight"><pre><span></span><code>systemctl<span class="w"> </span>daemon-reload
+<div class="highlight"><pre><span></span><code><span class="c1"># systemctl daemon-reload</span>
 </code></pre></div>
 <p>&nbsp;</p>
 <p><strong>Arrancar servicio SBD</strong></p>
-<div class="highlight"><pre><span></span><code>systemctl<span class="w"> </span>start<span class="w"> </span>sbd
+<div class="highlight"><pre><span></span><code><span class="c1"># systemctl start sbd</span>
 </code></pre></div>
 <p>&nbsp;</p>
 <p><strong>Verificar servicio</strong></p>
-<div class="highlight"><pre><span></span><code>systemctl<span class="w"> </span>status<span class="w"> </span>sbd
+<div class="highlight"><pre><span></span><code><span class="c1"># systemctl status sbd</span>
 </code></pre></div>
 <hr />
 <p>&nbsp;</p>
-<h1 id="fase-6-configuracion-de-stonith-mediante-sbd">FASE 6 — Configuración de STONITH mediante SBD</h1>
+<h2 id="fase-6-configuracion-de-stonith-mediante-sbd">FASE 6 — Configuración de STONITH mediante SBD</h2>
 <p>⚠️ <small>Aplicar en: <strong>nodo1</strong></small></p>
 <hr />
 <p>Crear recurso STONITH</p>
-<div class="highlight"><pre><span></span><code>pcs<span class="w"> </span>stonith<span class="w"> </span>create<span class="w"> </span>mi-fencing-sbd<span class="w"> </span>fence_sbd<span class="w"> </span><span class="nv">devices</span><span class="o">=</span>/dev/sda<span class="w"> </span><span class="nv">pcmk_host_list</span><span class="o">=</span><span class="s2">&quot;nodo1.laboratorio nodo2.laboratorio nodo3.laboratorio&quot;</span>
+<div class="highlight"><pre><span></span><code><span class="c1"># pcs stonith create mi-fencing-sbd fence_sbd devices=/dev/sda pcmk_host_list=&quot;nodo1.laboratorio nodo2.laboratorio nodo3.laboratorio&quot;</span>
 </code></pre></div>
 <p><strong>Verificar recurso creado</strong>
-<div class="highlight"><pre><span></span><code>pcs<span class="w"> </span>stonith<span class="w"> </span>config
+<div class="highlight"><pre><span></span><code><span class="c1"># pcs stonith config</span>
 </code></pre></div></p>
 <p><strong>Verificar estado STONITH</strong></p>
-<div class="highlight"><pre><span></span><code>pcs<span class="w"> </span>status
+<div class="highlight"><pre><span></span><code><span class="c1"># pcs status</span>
 </code></pre></div>
 <p><strong>Habilitar STONITH</strong></p>
-<div class="highlight"><pre><span></span><code>pcs<span class="w"> </span>property<span class="w"> </span><span class="nb">set</span><span class="w"> </span>stonith-enabled<span class="o">=</span><span class="nb">true</span>
+<div class="highlight"><pre><span></span><code><span class="c1"># pcs property set stonith-enabled=true</span>
 </code></pre></div>
 <p><strong>Verificar propiedad</strong></p>
-<div class="highlight"><pre><span></span><code>pcs<span class="w"> </span>property<span class="w"> </span>config
+<div class="highlight"><pre><span></span><code><span class="c1"># pcs property config</span>
 </code></pre></div>
 <p><strong>Validar configuración general</strong></p>
-<div class="highlight"><pre><span></span><code>pcs<span class="w"> </span>status
+<div class="highlight"><pre><span></span><code><span class="c1"># pcs status</span>
 </code></pre></div>
 <hr />
 <p>&nbsp;</p>
-<h1 id="fase-7-preparacion-del-almacenamiento-compartido">FASE 7 — Preparación del Almacenamiento Compartido</h1>
+<h2 id="fase-7-preparacion-del-almacenamiento-compartido">FASE 7 — Preparación del Almacenamiento Compartido</h2>
 <p>⚠️ Debido a cambios en Rocky Linux 10, la arquitectura soportada utiliza:</p>
+<p>&nbsp;</p>
 <div class="highlight"><pre><span></span><code>LVM-activate
 vg_access_mode=tagging
 </code></pre></div>
@@ -7048,85 +7118,77 @@ Resilient Storage
 </code></pre></div>
 <hr />
 <p><strong>Validar disco compartido</strong></p>
-<div class="highlight"><pre><span></span><code>lsblk
+<div class="highlight"><pre><span></span><code><span class="c1"># lsblk</span>
 </code></pre></div>
 <p><strong>Registrar disco en catálogo LVM</strong></p>
 <p>Ejecutar en todos los nodos:</p>
-<div class="highlight"><pre><span></span><code>lvmdevices<span class="w"> </span>--adddev<span class="w"> </span>/dev/sdb
+<div class="highlight"><pre><span></span><code><span class="c1"># lvmdevices --adddev /dev/sdb</span>
 </code></pre></div>
 <hr />
 <p><strong>Validar dispositivo registrado</strong></p>
-<div class="highlight"><pre><span></span><code>lvmdevices
+<div class="highlight"><pre><span></span><code><span class="c1"># lvmdevices</span>
 </code></pre></div>
 <hr />
 <p><strong>Crear Physical Volume</strong></p>
-<p>Ejecutar únicamente en nodo1:</p>
-<div class="highlight"><pre><span></span><code>pvcreate<span class="w"> </span>/dev/sdb
+<p>⚠️ <small>Aplicar en: <strong>nodo1</strong></small></p>
+<p>&nbsp;</p>
+<p>Ejecutar:</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># pvcreate /dev/sdb</span>
 </code></pre></div>
 <p><strong>Validar PV</strong></p>
-<div class="highlight"><pre><span></span><code>pvs
+<div class="highlight"><pre><span></span><code><span class="c1"># pvs</span>
 </code></pre></div>
 <p><strong>Crear Volume Group</strong></p>
-<div class="highlight"><pre><span></span><code>vgcreate<span class="w"> </span>vg_datos_ha<span class="w"> </span>/dev/sdb
+<div class="highlight"><pre><span></span><code><span class="c1"># vgcreate vg_datos_ha /dev/sdb</span>
 </code></pre></div>
 <hr />
 <p><strong>Validar VG</strong></p>
-<div class="highlight"><pre><span></span><code>vgs
-</code></pre></div>
-<p>Ejemplo:</p>
-<div class="highlight"><pre><span></span><code>VG          #PV #LV Attr   VSize
-vg_datos_ha   1   0 wz--n- 15.00g
+<div class="highlight"><pre><span></span><code><span class="c1"># vgs</span>
 </code></pre></div>
 <hr />
 <p><strong>Forzar descubrimiento en nodos secundarios</strong></p>
-<p>Ejecutar en nodo2 y nodo3:</p>
-<div class="highlight"><pre><span></span><code>vgscan
+<p>⚠️ <small>Aplicar en: <strong>nodo2 y nodo3</strong></small></p>
+<p>&nbsp;</p>
+<p>Ejecutar:</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># vgscan</span>
 </code></pre></div>
 <hr />
 <p><strong>Crear Logical Volume</strong></p>
-<div class="highlight"><pre><span></span><code>lvcreate<span class="w"> </span>-l<span class="w"> </span><span class="m">100</span>%FREE<span class="w"> </span>--name<span class="w"> </span>lv_almacenamiento<span class="w"> </span>vg_datos_ha
+<div class="highlight"><pre><span></span><code><span class="c1"># lvcreate -l 100%FREE --name lv_almacenamiento vg_datos_ha</span>
 </code></pre></div>
 <hr />
 <p><strong>Validar LV</strong></p>
-<div class="highlight"><pre><span></span><code>lvs
-</code></pre></div>
-<p>Ejemplo:</p>
-<div class="highlight"><pre><span></span><code>LV                VG
-lv_almacenamiento vg_datos_ha
+<div class="highlight"><pre><span></span><code><span class="c1"># lvs</span>
 </code></pre></div>
 <hr />
 <p><strong>Formatear volumen XFS</strong></p>
-<div class="highlight"><pre><span></span><code>mkfs.xfs<span class="w"> </span>/dev/vg_datos_ha/lv_almacenamiento
+<div class="highlight"><pre><span></span><code><span class="c1"># mkfs.xfs /dev/vg_datos_ha/lv_almacenamiento</span>
 </code></pre></div>
 <hr />
 <p><strong>Validar Filesystem</strong></p>
-<div class="highlight"><pre><span></span><code>blkid
-</code></pre></div>
-<p>Ejemplo:</p>
-<div class="highlight"><pre><span></span><code>/dev/mapper/vg_datos_ha-lv_almacenamiento: TYPE=&quot;xfs&quot;
+<div class="highlight"><pre><span></span><code><span class="c1"># blkid</span>
 </code></pre></div>
 <hr />
 <p><strong>Desactivar Volume Group</strong></p>
 <p>⚠️ Paso obligatorio.</p>
-<div class="highlight"><pre><span></span><code>vgchange<span class="w"> </span>-an<span class="w"> </span>vg_datos_ha
+<div class="highlight"><pre><span></span><code><span class="c1"># vgchange -an vg_datos_ha</span>
 </code></pre></div>
 <hr />
 <p><strong>Verificar VG inactivo</strong></p>
-<div class="highlight"><pre><span></span><code>vgs
+<div class="highlight"><pre><span></span><code><span class="c1"># vgs</span>
 </code></pre></div>
 <p>La columna Attr debe indicar que el VG no se encuentra activo.</p>
 <hr />
 <p>&nbsp;</p>
-<h1 id="fase-8-configuracion-de-exclusion-de-activacion-automatica">FASE 8 — Configuración de Exclusión de Activación Automática</h1>
+<h2 id="fase-8-configuracion-de-exclusion-de-activacion-automatica">FASE 8 — Configuración de Exclusión de Activación Automática</h2>
+<p>⚠️  <small>Aplicar en: <strong>nodo1, nodo2 y nodo3</strong></small></p>
 <p>&nbsp;</p>
-<p>⚠️ Ejecutar en todos los nodos.</p>
-<hr />
 <p><strong>Respaldar configuración LVM</strong></p>
-<div class="highlight"><pre><span></span><code>cp<span class="w"> </span>/etc/lvm/lvm.conf<span class="w"> </span>/etc/lvm/lvm.conf.bak
+<div class="highlight"><pre><span></span><code><span class="c1"># cp /etc/lvm/lvm.conf /etc/lvm/lvm.conf.bak</span>
 </code></pre></div>
 <hr />
 <p><strong>Editar configuración</strong></p>
-<div class="highlight"><pre><span></span><code>vi<span class="w"> </span>/etc/lvm/lvm.conf
+<div class="highlight"><pre><span></span><code><span class="c1"># vi /etc/lvm/lvm.conf</span>
 </code></pre></div>
 <hr />
 <p><strong>Modificar sección activation</strong></p>
@@ -7142,144 +7204,95 @@ lv_almacenamiento vg_datos_ha
 </code></pre></div>
 <hr />
 <p><strong>Validar sintaxis</strong></p>
-<div class="highlight"><pre><span></span><code>grep<span class="w"> </span>-n<span class="w"> </span>volume_list<span class="w"> </span>/etc/lvm/lvm.conf
+<div class="highlight"><pre><span></span><code><span class="c1"># grep -n volume_list /etc/lvm/lvm.conf</span>
 </code></pre></div>
 <hr />
 <p><strong>Regenerar initramfs</strong></p>
-<div class="highlight"><pre><span></span><code>dracut<span class="w"> </span>-f<span class="w"> </span>--regenerate-all
+<div class="highlight"><pre><span></span><code><span class="c1"># dracut -f --regenerate-all</span>
 </code></pre></div>
 <hr />
 <p><strong>Verificar finalización correcta</strong></p>
-<div class="highlight"><pre><span></span><code><span class="nb">echo</span><span class="w"> </span><span class="nv">$?</span>
+<div class="highlight"><pre><span></span><code><span class="c1"># echo $?</span>
 </code></pre></div>
-<p>Resultado esperado:</p>
-<div class="highlight"><pre><span></span><code>0
-</code></pre></div>
+<p>Resultado esperado <strong><code>0</code></strong></p>
+<p>&nbsp;</p>
 <hr />
 <p><strong>Reiniciar servidor</strong></p>
 <p>Ejecutar nodo por nodo.</p>
-<div class="highlight"><pre><span></span><code>reboot
+<div class="highlight"><pre><span></span><code><span class="c1"># reboot</span>
 </code></pre></div>
 <hr />
 <p><strong>Validar que el VG compartido no se active automáticamente</strong></p>
-<div class="highlight"><pre><span></span><code>lvs
+<div class="highlight"><pre><span></span><code><span class="c1"># lvs</span>
 </code></pre></div>
 <p>El volumen compartido no debe encontrarse montado ni activo.</p>
 <hr />
 <p><strong>Validar estado general del Cluster</strong></p>
-<div class="highlight"><pre><span></span><code>pcs<span class="w"> </span>status
+<div class="highlight"><pre><span></span><code><span class="c1"># pcs status</span>
 </code></pre></div>
 <p>Todos los nodos deben encontrarse Online.</p>
 <hr />
 <p>&nbsp;</p>
-<h1 id="fase-9-creacion-de-recursos-del-cluster">FASE 9 — Creación de Recursos del Cluster</h1>
+<h2 id="fase-9-creacion-de-recursos-del-cluster">FASE 9 — Creación de Recursos del Cluster</h2>
 <p>&nbsp;</p>
-<p>⚠️ Todos los comandos de esta fase se ejecutan únicamente desde:</p>
-<div class="highlight"><pre><span></span><code>nodo1.laboratorio
-</code></pre></div>
-<hr />
+<p>⚠️ <small>Aplicar en: <strong>nodo1</strong></small></p>
+<p>&nbsp;</p>
 <p><strong>Crear recurso LVM-activate</strong></p>
-<div class="highlight"><pre><span></span><code>pcs<span class="w"> </span>resource<span class="w"> </span>create<span class="w"> </span>vg_datos_ha<span class="w"> </span>ocf:heartbeat:LVM-activate<span class="w"> </span><span class="nv">vgname</span><span class="o">=</span>vg_datos_ha<span class="w"> </span><span class="nv">vg_access_mode</span><span class="o">=</span>tagging
+<div class="highlight"><pre><span></span><code><span class="c1"># pcs resource create vg_datos_ha ocf:heartbeat:LVM-activate vgname=vg_datos_ha vg_access_mode=tagging</span>
 </code></pre></div>
-<hr />
+<p>&nbsp;</p>
 <p><strong>Validar recurso</strong></p>
-<div class="highlight"><pre><span></span><code>pcs<span class="w"> </span>resource<span class="w"> </span>config
+<div class="highlight"><pre><span></span><code><span class="c1"># pcs resource config</span>
 </code></pre></div>
 <hr />
 <p><strong>Crear punto de montaje</strong></p>
 <p>Ejecutar en todos los nodos:</p>
-<div class="highlight"><pre><span></span><code>mkdir<span class="w"> </span>-p<span class="w"> </span>/datos
+<div class="highlight"><pre><span></span><code><span class="c1"># mkdir -p /datos</span>
 </code></pre></div>
 <hr />
 <p><strong>Crear recurso Filesystem</strong></p>
-<div class="highlight"><pre><span></span><code>pcs<span class="w"> </span>resource<span class="w"> </span>create<span class="w"> </span>fs_datos<span class="w"> </span>ocf:heartbeat:Filesystem<span class="w"> </span><span class="nv">device</span><span class="o">=</span><span class="s2">&quot;/dev/vg_datos_ha/lv_almacenamiento&quot;</span><span class="w"> </span><span class="nv">directory</span><span class="o">=</span><span class="s2">&quot;/datos&quot;</span><span class="w"> </span><span class="nv">fstype</span><span class="o">=</span><span class="s2">&quot;xfs&quot;</span>
+<div class="highlight"><pre><span></span><code><span class="c1"># pcs resource create fs_datos ocf:heartbeat:Filesystem device=&quot;/dev/vg_datos_ha/lv_almacenamiento&quot; directory=&quot;/datos&quot; fstype=&quot;xfs&quot;</span>
 </code></pre></div>
 <hr />
 <p><strong>Crear IP Virtual</strong></p>
-<div class="highlight"><pre><span></span><code>pcs<span class="w"> </span>resource<span class="w"> </span>create<span class="w"> </span>vip_datos<span class="w"> </span>ocf:heartbeat:IPaddr2<span class="w"> </span><span class="nv">ip</span><span class="o">=</span><span class="m">10</span>.0.0.100<span class="w"> </span><span class="nv">cidr_netmask</span><span class="o">=</span><span class="m">24</span>
+<div class="highlight"><pre><span></span><code><span class="c1"># pcs resource create vip_datos ocf:heartbeat:IPaddr2 ip=10.0.0.100 cidr_netmask=24</span>
 </code></pre></div>
 <hr />
 <p><strong>Verificar recursos creados</strong></p>
-<div class="highlight"><pre><span></span><code>pcs<span class="w"> </span>resource<span class="w"> </span>show
+<div class="highlight"><pre><span></span><code><span class="c1"># pcs resource show</span>
 </code></pre></div>
 <hr />
 <p>&nbsp;</p>
-<h1 id="fase-10-agrupacion-de-recursos">FASE 10 — Agrupación de Recursos</h1>
+<h2 id="fase-10-agrupacion-de-recursos">FASE 10 — Agrupación de Recursos</h2>
 <p>&nbsp;</p>
 <p><strong>Crear grupo</strong></p>
-<div class="highlight"><pre><span></span><code>pcs<span class="w"> </span>resource<span class="w"> </span>group<span class="w"> </span>add<span class="w"> </span>grupo_datos<span class="w"> </span>vg_datos_ha<span class="w"> </span>fs_datos<span class="w"> </span>vip_datos
+<div class="highlight"><pre><span></span><code><span class="c1"># pcs resource group add grupo_datos vg_datos_ha fs_datos vip_datos</span>
 </code></pre></div>
-<hr />
+<p>&nbsp;</p>
 <p><strong>Verificar grupo</strong></p>
-<div class="highlight"><pre><span></span><code>pcs<span class="w"> </span>resource<span class="w"> </span>status
+<div class="highlight"><pre><span></span><code><span class="c1"># pcs resource status</span>
 </code></pre></div>
-<p>Ejemplo esperado:</p>
-<div class="highlight"><pre><span></span><code>Resource Group: grupo_datos
-    vg_datos_ha
-    fs_datos
-    vip_datos
-</code></pre></div>
-<hr />
+<p>&nbsp;</p>
 <p><strong>Validar estado general</strong></p>
 <div class="highlight"><pre><span></span><code>pcs<span class="w"> </span>status
 </code></pre></div>
-<p>Ejemplo:</p>
-<div class="highlight"><pre><span></span><code>Cluster name: cluster_laboratorio
-
-Online:
-  nodo1
-  nodo2
-  nodo3
-
-Resource Group: grupo_datos
-
-  vg_datos_ha
-  fs_datos
-  vip_datos
-</code></pre></div>
-<hr />
-<h1 id="fase-11-validacion-del-filesystem-compartido">FASE 11 — Validación del Filesystem Compartido</h1>
-<p><strong>Verificar montaje</strong></p>
-<div class="highlight"><pre><span></span><code>df<span class="w"> </span>-h
-</code></pre></div>
-<p>Ejemplo:</p>
-<div class="highlight"><pre><span></span><code>/dev/mapper/vg_datos_ha-lv_almacenamiento
-</code></pre></div>
-<p>Montado sobre:</p>
-<div class="highlight"><pre><span></span><code>/datos
-</code></pre></div>
-<hr />
-<p><strong>Crear archivo de prueba</strong></p>
-<div class="highlight"><pre><span></span><code>touch<span class="w"> </span>/datos/test_cluster.txt
-</code></pre></div>
-<hr />
-<p><strong>Validar escritura</strong></p>
-<div class="highlight"><pre><span></span><code>ls<span class="w"> </span>-l<span class="w"> </span>/datos
-</code></pre></div>
-<hr />
-<p><strong>Validar IP Virtual</strong></p>
-<div class="highlight"><pre><span></span><code>ip<span class="w"> </span>addr
-</code></pre></div>
-<hr />
-<p><strong>Probar conectividad</strong></p>
-<p>Desde otro servidor:</p>
-<div class="highlight"><pre><span></span><code>ping<span class="w"> </span><span class="m">10</span>.0.0.100
-</code></pre></div>
 <hr />
 <p>&nbsp;</p>
-<h1 id="fase-12-prueba-de-failover">FASE 12 — Prueba de Failover</h1>
+<hr />
+<p>&nbsp;</p>
+<h2 id="fase-11-prueba-de-failover">FASE 11 — Prueba de Failover</h2>
 <p>&nbsp;</p>
 <p><strong>Identificar nodo activo</strong></p>
-<div class="highlight"><pre><span></span><code>pcs<span class="w"> </span>status
+<div class="highlight"><pre><span></span><code><span class="c1"># pcs status</span>
 </code></pre></div>
-<hr />
-<p><strong>Paso 2 — Colocar nodo en standby</strong></p>
+<p>&nbsp;</p>
+<p><strong>Colocar nodo en standby</strong></p>
 <p>Ejemplo:</p>
 <div class="highlight"><pre><span></span><code>pcs<span class="w"> </span>node<span class="w"> </span>standby<span class="w"> </span>nodo1.laboratorio
 </code></pre></div>
-<hr />
+<p>&nbsp;</p>
 <p><strong>Verificar migración automática</strong></p>
-<div class="highlight"><pre><span></span><code>pcs<span class="w"> </span>status
+<div class="highlight"><pre><span></span><code><span class="c1"># pcs status</span>
 </code></pre></div>
 <p>Validar:</p>
 <ul>
@@ -7294,117 +7307,118 @@ Resource Group: grupo_datos
 <p>Debe visualizarse:</p>
 <div class="highlight"><pre><span></span><code>test_cluster.txt
 </code></pre></div>
-<hr />
+<p>&nbsp;</p>
 <p><strong>Regresar nodo al Cluster</strong></p>
-<div class="highlight"><pre><span></span><code>pcs<span class="w"> </span>node<span class="w"> </span>unstandby<span class="w"> </span>nodo1.laboratorio
+<div class="highlight"><pre><span></span><code><span class="c1"># pcs node unstandby nodo1.laboratorio</span>
 </code></pre></div>
-<hr />
+<p>&nbsp;</p>
 <p><strong>Verificar reintegración</strong></p>
-<div class="highlight"><pre><span></span><code>pcs<span class="w"> </span>status
+<div class="highlight"><pre><span></span><code><span class="c1"># pcs status</span>
 </code></pre></div>
-<p>Todos los nodos deben aparecer:</p>
-<div class="highlight"><pre><span></span><code>Online
-</code></pre></div>
+<p>Todos los nodos deben aparecer <strong>Online</strong>.</p>
 <hr />
-<h1 id="fase-13-operacion-diaria">FASE 13 — Operación Diaria</h1>
-<p><strong>Estado general del Cluster</strong></p>
-<div class="highlight"><pre><span></span><code>pcs<span class="w"> </span>status
+<p>&nbsp;</p>
+<h2 id="fase-12-operacion-diaria">FASE 12 — Operación Diaria</h2>
+<p>&nbsp;
+<strong>Estado general del Cluster</strong></p>
+<div class="highlight"><pre><span></span><code><span class="c1"># pcs status</span>
 </code></pre></div>
 <hr />
 <p><strong>Estado detallado</strong></p>
-<div class="highlight"><pre><span></span><code>pcs<span class="w"> </span>status<span class="w"> </span>--full
+<div class="highlight"><pre><span></span><code><span class="c1"># pcs status --full</span>
 </code></pre></div>
-<hr />
+<p>&nbsp;</p>
 <p><strong>Ver recursos del cluster</strong></p>
-<div class="highlight"><pre><span></span><code>pcs<span class="w"> </span>resource<span class="w"> </span>show
+<div class="highlight"><pre><span></span><code><span class="c1"># pcs resource show</span>
 </code></pre></div>
-<hr />
+<p>&nbsp;</p>
 <p><strong>Ver propiedades del cluster</strong></p>
-<div class="highlight"><pre><span></span><code>pcs<span class="w"> </span>property<span class="w"> </span>config
+<div class="highlight"><pre><span></span><code><span class="c1"># pcs property config</span>
 </code></pre></div>
-<hr />
+<p>&nbsp;</p>
 <p><strong>Ver STONITH</strong></p>
-<div class="highlight"><pre><span></span><code>pcs<span class="w"> </span>stonith<span class="w"> </span>config
+<div class="highlight"><pre><span></span><code><span class="c1"># pcs stonith config</span>
 </code></pre></div>
-<hr />
+<p>&nbsp;</p>
 <p><strong>Ver quorum</strong></p>
-<div class="highlight"><pre><span></span><code>pcs<span class="w"> </span>quorum<span class="w"> </span>status
+<div class="highlight"><pre><span></span><code><span class="c1"># pcs quorum status</span>
 </code></pre></div>
-<hr />
+<p>&nbsp;</p>
 <p><strong>Ver configuración completa</strong></p>
-<div class="highlight"><pre><span></span><code>pcs<span class="w"> </span>config
+<div class="highlight"><pre><span></span><code><span class="c1"># pcs config</span>
 </code></pre></div>
 <hr />
 <p><strong>Poner nodo en mantenimiento</strong></p>
-<div class="highlight"><pre><span></span><code>pcs<span class="w"> </span>node<span class="w"> </span>standby<span class="w"> </span>&lt;nodo&gt;
+<div class="highlight"><pre><span></span><code><span class="c1"># pcs node standby &lt;nodo&gt;</span>
 </code></pre></div>
 <hr />
 <p><strong>Regresar nodo a producción</strong></p>
-<div class="highlight"><pre><span></span><code>pcs<span class="w"> </span>node<span class="w"> </span>unstandby<span class="w"> </span>&lt;nodo&gt;
+<div class="highlight"><pre><span></span><code><span class="c1"># pcs node unstandby &lt;nodo&gt;</span>
 </code></pre></div>
 <hr />
 <p><strong>Reiniciar recurso</strong></p>
-<div class="highlight"><pre><span></span><code>pcs<span class="w"> </span>resource<span class="w"> </span>restart<span class="w"> </span>&lt;recurso&gt;
+<div class="highlight"><pre><span></span><code><span class="c1"># pcs resource restart &lt;recurso&gt;</span>
 </code></pre></div>
-<hr />
+<p>&nbsp;</p>
 <p><strong>Limpiar recurso fallido</strong></p>
 <div class="highlight"><pre><span></span><code>pcs<span class="w"> </span>resource<span class="w"> </span>cleanup
 </code></pre></div>
-<hr />
+<p>&nbsp;</p>
 <p><strong>Limpiar recurso específico</strong></p>
-<div class="highlight"><pre><span></span><code>pcs<span class="w"> </span>resource<span class="w"> </span>cleanup<span class="w"> </span>&lt;recurso&gt;
+<div class="highlight"><pre><span></span><code><span class="c1"># pcs resource cleanup &lt;recurso&gt;</span>
 </code></pre></div>
 <hr />
 <p>&nbsp;</p>
-<h1 id="fase-14-troubleshooting">FASE 14 — Troubleshooting</h1>
-<h3 id="ver-eventos-del-cluster">Ver eventos del Cluster</h3>
-<div class="highlight"><pre><span></span><code>pcs<span class="w"> </span>status<span class="w"> </span>--full
+<h2 id="fase-13-troubleshooting">FASE 13 — Troubleshooting</h2>
+<p>&nbsp;</p>
+<p><strong>Ver eventos del Cluster</strong></p>
+<div class="highlight"><pre><span></span><code><span class="c1"># pcs status --full</span>
 </code></pre></div>
-<hr />
-<h3 id="logs-de-pacemaker">Logs de Pacemaker</h3>
+<p>&nbsp;</p>
+<p><strong>Logs de Pacemaker</strong></p>
 <div class="highlight"><pre><span></span><code>journalctl<span class="w"> </span>-u<span class="w"> </span>pacemaker<span class="w"> </span>-f
 </code></pre></div>
-<hr />
-<h3 id="logs-de-corosync">Logs de Corosync</h3>
+<p>&nbsp;</p>
+<p><strong>Logs de Corosync</strong></p>
 <div class="highlight"><pre><span></span><code>journalctl<span class="w"> </span>-u<span class="w"> </span>corosync<span class="w"> </span>-f
 </code></pre></div>
-<hr />
-<h3 id="logs-de-sbd">Logs de SBD</h3>
+<p>&nbsp;</p>
+<p><strong>Logs de SBD</strong></p>
 <div class="highlight"><pre><span></span><code>journalctl<span class="w"> </span>-u<span class="w"> </span>sbd<span class="w"> </span>-f
 </code></pre></div>
-<hr />
-<h3 id="verificar-membresia-corosync">Verificar membresía Corosync</h3>
+<p>&nbsp;</p>
+<p><strong>Verificar membresía Corosync</strong></p>
 <div class="highlight"><pre><span></span><code>corosync-quorumtool
 </code></pre></div>
-<hr />
-<h3 id="verificar-transporte-corosync">Verificar transporte Corosync</h3>
+<p>&nbsp;</p>
+<p><strong>Verificar transporte Corosync</strong></p>
 <div class="highlight"><pre><span></span><code>corosync-cfgtool<span class="w"> </span>-s
 </code></pre></div>
-<hr />
-<h3 id="verificar-recursos-fallidos">Verificar recursos fallidos</h3>
+<p>&nbsp;</p>
+<p><strong>Verificar recursos fallidos</strong></p>
 <div class="highlight"><pre><span></span><code>pcs<span class="w"> </span>status
 </code></pre></div>
-<hr />
-<h3 id="ver-slots-sbd">Ver slots SBD</h3>
+<p>&nbsp;</p>
+<p><strong>Ver slots SBD</strong></p>
 <div class="highlight"><pre><span></span><code>sbd<span class="w"> </span>-d<span class="w"> </span>/dev/sda<span class="w"> </span>list
 </code></pre></div>
-<hr />
-<h3 id="ver-metadata-sbd">Ver metadata SBD</h3>
+<p>&nbsp;</p>
+<p><strong>Ver metadata SBD</strong></p>
 <div class="highlight"><pre><span></span><code>sbd<span class="w"> </span>-d<span class="w"> </span>/dev/sda<span class="w"> </span>dump
 </code></pre></div>
-<hr />
-<h3 id="validar-watchdog">Validar watchdog</h3>
+<p>&nbsp;</p>
+<p><strong>Validar watchdog</strong></p>
 <div class="highlight"><pre><span></span><code>ls<span class="w"> </span>-l<span class="w"> </span>/dev/watchdog
 </code></pre></div>
-<hr />
-<h3 id="verificar-sesiones-iscsi">Verificar sesiones iSCSI</h3>
+<p>&nbsp;</p>
+<p><strong>Verificar sesiones iSCSI</strong></p>
 <div class="highlight"><pre><span></span><code>iscsiadm<span class="w"> </span>-m<span class="w"> </span>session
 </code></pre></div>
-<hr />
-<h3 id="verificar-montaje">Verificar montaje</h3>
+<p>&nbsp;</p>
+<p><strong>Verificar montaje</strong></p>
 <div class="highlight"><pre><span></span><code>df<span class="w"> </span>-h
 </code></pre></div>
-<hr />
+<p>&nbsp;</p>
 <h1 id="validaciones-post-instalacion">🔍 Validaciones Post-instalación</h1>
 <p>Validar que:</p>
 <ul>
