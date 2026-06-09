@@ -6532,7 +6532,9 @@ code {
 <div class="highlight"><pre><span></span><code><span class="c1"># vi /etc/hosts</span>
 </code></pre></div>
 <p>Agregar:</p>
-<div class="highlight"><pre><span></span><code>10.0.0.11 nodo1.laboratorio nodo1
+<div class="highlight"><pre><span></span><code>#Red privada para el cluster
+# ip     hostname   alias
+10.0.0.11 nodo1.laboratorio nodo1
 10.0.0.12 nodo2.laboratorio nodo2
 10.0.0.13 nodo3.laboratorio nodo3
 10.0.0.20 nodo4.laboratorio nodo4
@@ -6544,7 +6546,7 @@ code {
 <hr />
 <p>&nbsp;</p>
 <p><strong>Validar resolución DNS local</strong></p>
-<p><small>Aplicar en: nodo1, nodo2 y nodo3</small></p>
+<p><small>Aplicar en: <strong>nodo1, nodo2 y nodo3</strong></small></p>
 <p>Ejecutar:</p>
 <div class="highlight"><pre><span></span><code><span class="c1"># ping -c 2 nodo1.laboratorio</span>
 <span class="c1"># ping -c 2 nodo2.laboratorio</span>
@@ -6561,7 +6563,8 @@ code {
 <hr />
 <p>&nbsp;</p>
 <p><strong>Abrir puertos de Alta Disponibilidad</strong> </p>
-<p><small>Aplicar en: nodo1, nodo2 y nodo3</small></p>
+<p><small>Aplicar en: <strong>nodo1, nodo2 y nodo3</strong></small>
+&nbsp;</p>
 <p>Ejecutar:</p>
 <div class="highlight"><pre><span></span><code><span class="c1"># firewall-cmd --permanent --add-service=high-availability</span>
 </code></pre></div>
@@ -6612,6 +6615,14 @@ code {
 <p>&nbsp;</p>
 <div class="highlight"><pre><span></span><code><span class="c1"># firewall-cmd --reload</span>
 </code></pre></div>
+<ul>
+<li>El comando recarga la configuración de firewalld para aplicar los cambios realizados en las reglas o servicios configurados previamente.<ul>
+<li><code>firewall-cmd</code>: Herramienta de administración de reglas de firewall en sistemas que utilizan firewalld.</li>
+<li><code>--reload</code>: Recarga la configuración activa del firewall sin necesidad de reiniciar el servicio o el sistema operativo.</li>
+</ul>
+</li>
+</ul>
+<p>&nbsp;</p>
 <div class="highlight"><pre><span></span><code><span class="c1"># dnf install targetcli -y</span>
 </code></pre></div>
 <ul>
@@ -6626,6 +6637,15 @@ code {
 <p>&nbsp;</p>
 <div class="highlight"><pre><span></span><code><span class="c1"># systemctl enable --now target</span>
 </code></pre></div>
+<ul>
+<li>El comando habilita e inicia inmediatamente el servicio <code>target</code>, encargado de gestionar los targets iSCSI en el sistema, asegurando que el almacenamiento exportado esté disponible de forma persistente después de cada reinicio.<ul>
+<li><code>systemctl</code>: Herramienta utilizada para administrar servicios gestionados por systemd.</li>
+<li><code>enable</code>: Configura el servicio para que se inicie automáticamente al arranque del sistema.</li>
+<li><code>--now</code>: Inicia el servicio de forma inmediata sin necesidad de un reinicio.</li>
+<li><code>target</code>: Servicio de LIO/targetd que gestiona la exportación de almacenamiento iSCSI en el sistema.</li>
+</ul>
+</li>
+</ul>
 <div class="highlight"><pre><span></span><code><span class="c1"># lsblk -l</span>
 </code></pre></div>
 <div class="highlight"><pre><span></span><code><span class="c1"># targetcli</span>
@@ -6660,6 +6680,16 @@ luns/<span class="w"> </span>create<span class="w"> </span>/backstores/block/san
 <p>Ejecutar:</p>
 <div class="highlight"><pre><span></span><code><span class="c1"># dnf install iscsi-initiator-utils -y</span>
 </code></pre></div>
+<ul>
+<li>El comando instala las utilidades necesarias para que el sistema funcione como iniciador iSCSI, permitiendo descubrir, conectar y administrar sesiones con targets de almacenamiento remoto.<ul>
+<li><code>dnf</code>: Gestor de paquetes utilizado en distribuciones basadas en Red Hat (como RHEL, Rocky Linux o AlmaLinux) para instalar, actualizar o eliminar software.</li>
+<li><code>install</code>: Indica que se realizará la instalación de un paquete.</li>
+<li><code>iscsi-initiator-utils</code>: Paquete que proporciona las herramientas <code>iscsiadm</code> y servicios necesarios para conectarse a targets iSCSI.</li>
+<li><code>-y</code>: Responde automáticamente “sí” a todas las confirmaciones durante la instalación, evitando interacción manual.</li>
+</ul>
+</li>
+</ul>
+<p>&nbsp;</p>
 <div class="highlight"><pre><span></span><code><span class="c1"># systemctl enable --now iscsid</span>
 </code></pre></div>
 <ul>
