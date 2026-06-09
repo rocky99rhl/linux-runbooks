@@ -87,6 +87,8 @@ Editar:
 Agregar:
 
 ```text
+#Red privada para el cluster
+# ip	 hostname	alias
 10.0.0.11 nodo1.laboratorio nodo1
 10.0.0.12 nodo2.laboratorio nodo2
 10.0.0.13 nodo3.laboratorio nodo3
@@ -102,7 +104,7 @@ Agregar:
 
 **Validar resolución DNS local**
 
-<small>Aplicar en: nodo1, nodo2 y nodo3</small>
+<small>Aplicar en: **nodo1, nodo2 y nodo3**</small>
 
 Ejecutar:
 
@@ -124,7 +126,8 @@ Ejecutar:
 
 **Abrir puertos de Alta Disponibilidad** 
 
-<small>Aplicar en: nodo1, nodo2 y nodo3</small>
+<small>Aplicar en: **nodo1, nodo2 y nodo3**</small>
+&nbsp;
 
 Ejecutar:
 
@@ -184,6 +187,13 @@ Ejecutar:
 # firewall-cmd --reload
 ```
 
+- El comando recarga la configuración de firewalld para aplicar los cambios realizados en las reglas o servicios configurados previamente.
+    - `firewall-cmd`: Herramienta de administración de reglas de firewall en sistemas que utilizan firewalld.
+    - `--reload`: Recarga la configuración activa del firewall sin necesidad de reiniciar el servicio o el sistema operativo.
+
+
+&nbsp;
+
 ```bash
 # dnf install targetcli -y
 ```
@@ -199,6 +209,13 @@ Ejecutar:
 ```bash
 # systemctl enable --now target
 ```
+
+- El comando habilita e inicia inmediatamente el servicio `target`, encargado de gestionar los targets iSCSI en el sistema, asegurando que el almacenamiento exportado esté disponible de forma persistente después de cada reinicio.
+    - `systemctl`: Herramienta utilizada para administrar servicios gestionados por systemd.
+    - `enable`: Configura el servicio para que se inicie automáticamente al arranque del sistema.
+    - `--now`: Inicia el servicio de forma inmediata sin necesidad de un reinicio.
+    - `target`: Servicio de LIO/targetd que gestiona la exportación de almacenamiento iSCSI en el sistema.
+
 
 ```bash
 # lsblk -l
@@ -245,6 +262,14 @@ Ejecutar:
 ```bash
 # dnf install iscsi-initiator-utils -y
 ```
+
+- El comando instala las utilidades necesarias para que el sistema funcione como iniciador iSCSI, permitiendo descubrir, conectar y administrar sesiones con targets de almacenamiento remoto.
+    - `dnf`: Gestor de paquetes utilizado en distribuciones basadas en Red Hat (como RHEL, Rocky Linux o AlmaLinux) para instalar, actualizar o eliminar software.
+    - `install`: Indica que se realizará la instalación de un paquete.
+    - `iscsi-initiator-utils`: Paquete que proporciona las herramientas `iscsiadm` y servicios necesarios para conectarse a targets iSCSI.
+    - `-y`: Responde automáticamente “sí” a todas las confirmaciones durante la instalación, evitando interacción manual.
+
+&nbsp;
 
 ```bash
 # systemctl enable --now iscsid
