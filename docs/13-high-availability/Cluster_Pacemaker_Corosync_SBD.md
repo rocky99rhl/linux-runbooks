@@ -42,6 +42,7 @@ La solución permitirá:
 - Firewall habilitado.
 - Resolución de nombres funcional.
 - Conectividad entre nodos.
+- Una direccion de IP Publica y una Privada por host.
 - Sincronización horaria mediante NTP.
 
 ### Topología de ejemplo
@@ -53,7 +54,16 @@ La solución permitirá:
 | nodo3.laboratorio | 10.0.0.13 |
 | nodo4.laboratorio | 10.0.0.20 | 
 
-<small>El nodo4 es la maquina que simula la cabina SAN </small>
+<small>El nodo4 es la maquina que simula la cabina SAN por iSCSI</small>
+
+
+!!! info
+    Antes de iniciar la Fase 1 de este procedimiento, se asume que las máquinas virtuales ya fueron desplegadas y configuradas conforme a lo establecido en el runbook Configuración de Laboratorio.
+
+    Esta validación previa garantiza que todos los componentes, dependencias y parámetros requeridos para el entorno se encuentran correctamente preparados, permitiendo ejecutar el laboratorio de Alta Disponibilidad de manera controlada y sin contratiempos derivados de configuraciones pendientes o incompletas.
+
+    En caso de que alguna de las configuraciones descritas en el runbook no haya sido aplicada, se recomienda completarla antes de continuar con las siguientes fases del procedimiento.
+
 
 ---
 
@@ -64,24 +74,14 @@ La solución permitirá:
 ## FASE 1 — Configuración de Red y Resolución de Nombres
 &nbsp;
 
-Antes de iniciar la Fase 1 de este procedimiento, se asume que las máquinas virtuales ya fueron desplegadas y configuradas conforme a lo establecido en el runbook Configuración de Laboratorio.
+<small>Aplicar en: **nodo1, nodo2 y nodo3**</small>
 
-Esta validación previa garantiza que todos los componentes, dependencias y parámetros requeridos para el entorno se encuentran correctamente preparados, permitiendo ejecutar el laboratorio de Alta Disponibilidad de manera controlada y sin contratiempos derivados de configuraciones pendientes o incompletas.
-
-En caso de que alguna de las configuraciones descritas en el runbook no haya sido aplicada, se recomienda completarla antes de continuar con las siguientes fases del procedimiento.
-
-
-----
-&nbsp;
-
-### Paso 1 — Configurar resolución local
-
-<small>Aplicar en: nodo1, nodo2 y nodo3</small>
+**Configurar resolución local**
 
 Editar:
 
 ```bash
-vi /etc/hosts
+# vi /etc/hosts
 ```
 
 Agregar:
@@ -97,18 +97,19 @@ Agregar:
   red privada de baja latencia, aislando el tráfico crítico clúster.
 
 ---
+
 &nbsp;
 
-### Paso 3 — Validar resolución DNS local
+**Validar resolución DNS local**
 
 <small>Aplicar en: nodo1, nodo2 y nodo3</small>
 
 Ejecutar:
 
 ```bash
-ping -c 2 nodo1.laboratorio
-ping -c 2 nodo2.laboratorio
-ping -c 2 nodo3.laboratorio
+# ping -c 2 nodo1.laboratorio
+# ping -c 2 nodo2.laboratorio
+# ping -c 2 nodo3.laboratorio
 ```
 
 - El comando envía dos mensajes ICMP al host especificado para verificar la conectividad de red y confirmar que el nombre del servidor puede resolverse correctamente.
@@ -118,16 +119,17 @@ ping -c 2 nodo3.laboratorio
 
 
 ---
+
 &nbsp;
 
-### Paso 4 — Abrir puertos de Alta Disponibilidad 
+**Abrir puertos de Alta Disponibilidad** 
 
 <small>Aplicar en: nodo1, nodo2 y nodo3</small>
 
 Ejecutar:
 
 ```bash
-firewall-cmd --permanent --add-service=high-availability
+# firewall-cmd --permanent --add-service=high-availability
 ```
 
 - El comando agrega de forma permanente la regla de firewall necesaria para permitir las comunicaciones utilizadas por los servicios de alta disponibilidad, como Pacemaker y Corosync.
@@ -139,7 +141,7 @@ firewall-cmd --permanent --add-service=high-availability
 
 
 ```bash
-firewall-cmd --reload
+# firewall-cmd --reload
 ```
 
 - El comando recarga la configuración de firewalld para aplicar los cambios realizados en las reglas o servicios configurados previamente.
@@ -149,7 +151,7 @@ firewall-cmd --reload
 &nbsp;
 
 ```bash
-firewall-cmd --list-services
+# firewall-cmd --list-services
 ```
 
 - El comando muestra la lista de servicios actualmente permitidos en la configuración activa del firewall, permitiendo verificar qué reglas de acceso se encuentran habilitadas.
@@ -157,38 +159,107 @@ firewall-cmd --list-services
     - `--list-services`: Muestra todos los servicios autorizados en la zona activa del firewall.
 
 ---
+
 &nbsp;
 
 ## FASE 2 — Configuración de Almacenamiento Compartido iSCSI
 &nbsp;
 
+⚠️ <small>Aplicar en: **nodo4**</small>
 
-### Paso 1 — Instalar utilerías iSCSI
+**Habilitar los puertos para iscsi en el firewall**
+
+```bash
+# firewall-cmd --permanent --add-service=iscsi-target
+```
+
+- El comando habilita de forma permanente el servicio de iSCSI Target en el firewall, permitiendo que otros sistemas puedan descubrir y conectarse al almacenamiento exportado por el servidor iSCSI.
+    - `firewall-cmd`: Herramienta utilizada para administrar reglas del firewall en sistemas que usan firewalld.
+    - `--permanent`: Indica que la regla se guardará de forma permanente y persistirá después de reiniciar el sistema.
+    - `--add-service=iscsi-target`: Habilita el servicio predefinido de iSCSI Target, abriendo los puertos necesarios para la comunicación iSCSI.
+
+&nbsp;
+
+```bash
+# firewall-cmd --reload
+```
+
+```bash
+# dnf install targetcli -y
+```
+
+- El comando instala la herramienta `targetcli`, utilizada para configurar y administrar targets iSCSI en el sistema, permitiendo exportar almacenamiento en red.
+    - `dnf`: Gestor de paquetes utilizado en distribuciones basadas en Red Hat (como RHEL, Rocky Linux o AlmaLinux) para instalar, actualizar o eliminar software.
+    - `install`: Indica que se realizará la instalación de un paquete.
+    - `targetcli`: Paquete que proporciona una interfaz para configurar targets iSCSI (LIO).
+    - `-y`: Responde automáticamente “sí” a todas las confirmaciones durante la instalación, evitando interacción manual.
+
+&nbsp;
+
+```bash
+# systemctl enable --now target
+```
+
+```bash
+# lsblk -l
+```
+
+```bash
+# targetcli
+```
+
+- El comando inicia la interfaz interactiva de `targetcli`, utilizada para configurar y administrar targets iSCSI en el sistema mediante el framework LIO.
+    - `targetcli`: Herramienta de línea de comandos interactiva para gestionar la configuración de targets iSCSI (LIO), incluyendo creación de backstores, LUNs, ACLs y exportación de almacenamiento.
+
+&nbsp;
+
+```bash
+/backstores/block create name=san-quorum dev=/dev/nvme0n2
+
+/backstores/block create name=san-datos dev=/dev/nvme0n3
+
+/iscsi create iqn.2026-06.laboratorio.san:storage
+
+cd /iscsi/iqn.2026-06.laboratorio.san:storage/tpg1/
+
+luns/ create /backstores/block/san-quorum
+
+luns/ create /backstores/block/san-datos
+
+set attribute authentication=0 demo_mode_write_protect=0 generate_node_acls=1
+
+exit
+```
+
+
+----
+
+&nbsp;
+
+**Instalar utilerías iSCSI**
 
 <small>Aplicar en: nodo1, nodo2 y nodo3</small>
 
 Ejecutar:
 
 ```bash
-dnf install iscsi-initiator-utils -y
+# dnf install iscsi-initiator-utils -y
 ```
 
 ```bash
-systemctl enable --now iscsid
+# systemctl enable --now iscsid
 ```
 
 - ¿Qué hace?: Descarga las utilidades de almacenamiento por red e inicia el 
   demonio encargado de simular discos duros locales sobre la red TCP/IP.
 
----
+
 &nbsp;
 
-### Paso 3 — Descubrir Targets iSCSI
-
-<small>Aplicar en: nodo1, nodo2 y nodo3</small>
+**Descubrir Targets iSCSI**
 
 ```bash
-iscsiadm -m discovery -t sendtargets -p 10.0.0.20
+# iscsiadm -m discovery -t sendtargets -p 10.0.0.20
 ```
 
 - El comando realiza el descubrimiento de los targets iSCSI disponibles en el servidor especificado, permitiendo identificar los recursos de almacenamiento que pueden ser utilizados por el sistema.
@@ -197,12 +268,10 @@ iscsiadm -m discovery -t sendtargets -p 10.0.0.20
     - `-t sendtargets`: Especifica el método SendTargets para solicitar al servidor la lista de targets disponibles.
     - `-p 10.0.0.20`: Define la dirección IP del servidor iSCSI que será consultado.
 
----
 &nbsp;
 
-### Paso 4 — Iniciar sesión contra la cabina SAN
+**Iniciar sesión contra la cabina SAN**
 
-<small>Aplicar en: nodo1, nodo2 y nodo3</small>
 
 ```bash
 iscsiadm -m node -T iqn.2026-06.laboratorio.san:storage -p 10.0.0.20 --login
@@ -215,23 +284,18 @@ iscsiadm -m node -T iqn.2026-06.laboratorio.san:storage -p 10.0.0.20 --login
     - `-p 10.0.0.20`: Define la dirección IP del portal iSCSI donde se encuentra publicado el target.
     - `--login`: Inicia la sesión iSCSI y establece la conexión con el target especificado.
 
----
 &nbsp;
 
-### Paso 5 — Validar nuevos discos
+**Validar nuevos discos**
 
-<small>Aplicar en: nodo1, nodo2 y nodo3</small>
 
 ```bash
 lsblk
 ```
 
-
-
----
 &nbsp;
 
-### Paso 6 — Configurar inicio automático de sesiones iSCSI
+**Configurar inicio automático de sesiones iSCSI**
 
 ```bash
 iscsiadm -m node --op update -n node.startup -v automatic
@@ -260,11 +324,13 @@ systemctl restart iscsid
 &nbsp;
 
 ## FASE 3 — Instalación de Pacemaker, Corosync y PCS
+
 &nbsp;
 
-### Paso 1 — Habilitar repositorio High Availability
+<small>Aplicar en: **nodo1, nodo2 y nodo3**</small>
 
-<small>Aplicar en: nodo1, nodo2 y nodo3</small>
+**Habilitar repositorio High Availability**
+
 
 Ejecutar:
 
