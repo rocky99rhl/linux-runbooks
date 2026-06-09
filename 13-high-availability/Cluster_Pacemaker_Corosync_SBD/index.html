@@ -6535,116 +6535,162 @@ code {
 10.0.0.13 nodo3.laboratorio nodo3
 10.0.0.20 nodo4.laboratorio nodo4
 </code></pre></div>
-<div class="admonition info">
-<p class="admonition-title">Info</p>
 <ul>
 <li>¿Qué hace?: Garantiza la comunicación inmediata por nombre a través de la 
- red privada de baja latencia, aislando el tráfico crítico clúster.</li>
+  red privada de baja latencia, aislando el tráfico crítico clúster.</li>
 </ul>
-</div>
 <hr />
 <p>&nbsp;</p>
 <h3 id="paso-3-validar-resolucion-dns-local">Paso 3 — Validar resolución DNS local</h3>
 <p><small>Aplicar en: nodo1, nodo2 y nodo3</small></p>
+<p>Ejecutar:</p>
 <div class="highlight"><pre><span></span><code>ping<span class="w"> </span>-c<span class="w"> </span><span class="m">2</span><span class="w"> </span>nodo1.laboratorio
 ping<span class="w"> </span>-c<span class="w"> </span><span class="m">2</span><span class="w"> </span>nodo2.laboratorio
 ping<span class="w"> </span>-c<span class="w"> </span><span class="m">2</span><span class="w"> </span>nodo3.laboratorio
 </code></pre></div>
+<ul>
+<li>El comando envía dos mensajes ICMP al host especificado para verificar la conectividad de red y confirmar que el nombre del servidor puede resolverse correctamente.<ul>
+<li><code>ping</code>: Herramienta utilizada para comprobar la comunicación entre equipos a través de la red.</li>
+<li><code>-c 2</code>: Indica que se enviarán únicamente dos solicitudes de eco (ping).</li>
+<li><code>nodo1.laboratorio</code>: Nombre del host o servidor al que se realizará la prueba de conectividad.</li>
+</ul>
+</li>
+</ul>
 <hr />
 <p>&nbsp;</p>
-<h3 id="paso-4-abrir-puertos-de-alta-disponibilidad-nodo1-nodo2-y-nodo3">Paso 4 — Abrir puertos de Alta Disponibilidad <strong><code>nodo1, nodo2 y nodo3</code></strong></h3>
-<p>Ejecutar</p>
+<h3 id="paso-4-abrir-puertos-de-alta-disponibilidad">Paso 4 — Abrir puertos de Alta Disponibilidad</h3>
+<p><small>Aplicar en: nodo1, nodo2 y nodo3</small></p>
+<p>Ejecutar:</p>
 <div class="highlight"><pre><span></span><code>firewall-cmd<span class="w"> </span>--permanent<span class="w"> </span>--add-service<span class="o">=</span>high-availability
 </code></pre></div>
+<ul>
+<li>El comando agrega de forma permanente la regla de firewall necesaria para permitir las comunicaciones utilizadas por los servicios de alta disponibilidad, como Pacemaker y Corosync.<ul>
+<li><code>firewall-cmd</code>: Herramienta de administración de reglas de firewall en sistemas que utilizan firewalld.</li>
+<li><code>--permanent</code>: Indica que el cambio se guardará de forma permanente y persistirá después de reiniciar el sistema.</li>
+<li><code>--add-service=high-availability</code>: Agrega el servicio predefinido <code>high-availability</code>, habilitando los puertos y protocolos requeridos para el funcionamiento del clúster de alta disponibilidad.</li>
+</ul>
+</li>
+</ul>
+<p>&nbsp;</p>
 <div class="highlight"><pre><span></span><code>firewall-cmd<span class="w"> </span>--reload
 </code></pre></div>
-<hr />
+<ul>
+<li>El comando recarga la configuración de firewalld para aplicar los cambios realizados en las reglas o servicios configurados previamente.<ul>
+<li><code>firewall-cmd</code>: Herramienta de administración de reglas de firewall en sistemas que utilizan firewalld.</li>
+<li><code>--reload</code>: Recarga la configuración activa del firewall sin necesidad de reiniciar el servicio o el sistema operativo.</li>
+</ul>
+</li>
+</ul>
 <p>&nbsp;</p>
-<h3 id="paso-5-validar-reglas-aplicadas-nodo1-nodo2-y-nodo3">Paso 5 — Validar reglas aplicadas - <strong><code>nodo1, nodo2 y nodo3</code></strong></h3>
 <div class="highlight"><pre><span></span><code>firewall-cmd<span class="w"> </span>--list-services
 </code></pre></div>
-<p>Debe visualizarse:</p>
-<div class="highlight"><pre><span></span><code>high-availability
-</code></pre></div>
+<ul>
+<li>El comando muestra la lista de servicios actualmente permitidos en la configuración activa del firewall, permitiendo verificar qué reglas de acceso se encuentran habilitadas.<ul>
+<li><code>firewall-cmd</code>: Herramienta de administración de reglas de firewall en sistemas que utilizan firewalld.</li>
+<li><code>--list-services</code>: Muestra todos los servicios autorizados en la zona activa del firewall.</li>
+</ul>
+</li>
+</ul>
 <hr />
 <p>&nbsp;</p>
 <h2 id="fase-2-configuracion-de-almacenamiento-compartido-iscsi">FASE 2 — Configuración de Almacenamiento Compartido iSCSI</h2>
 <p>&nbsp;</p>
-<h3 id="paso-1-instalar-utilerias-iscsi-nodo1-nodo2-y-nodo3">Paso 1 — Instalar utilerías iSCSI - <strong><code>nodo1, nodo2 y nodo3</code></strong></h3>
+<h3 id="paso-1-instalar-utilerias-iscsi">Paso 1 — Instalar utilerías iSCSI</h3>
+<p><small>Aplicar en: nodo1, nodo2 y nodo3</small></p>
 <p>Ejecutar:</p>
 <div class="highlight"><pre><span></span><code>dnf<span class="w"> </span>install<span class="w"> </span>iscsi-initiator-utils<span class="w"> </span>-y
 </code></pre></div>
-<hr />
-<p>&nbsp;</p>
-<h3 id="paso-2-habilitar-servicio-iscsi-nodo1-nodo2-y-nodo3">Paso 2 — Habilitar servicio iSCSI - <strong><code>nodo1, nodo2 y nodo3</code></strong></h3>
 <div class="highlight"><pre><span></span><code>systemctl<span class="w"> </span><span class="nb">enable</span><span class="w"> </span>--now<span class="w"> </span>iscsid
 </code></pre></div>
-<hr />
-<h3 id="paso-3-descubrir-targets-iscsi">Paso 3 — Descubrir Targets iSCSI</h3>
-<div class="highlight"><pre><span></span><code>iscsiadm<span class="w"> </span>-m<span class="w"> </span>discovery<span class="w"> </span>-t<span class="w"> </span>sendtargets<span class="w"> </span>-p<span class="w"> </span><span class="m">10</span>.0.0.20
-</code></pre></div>
-<p>Ejemplo:</p>
-<div class="highlight"><pre><span></span><code>10.0.0.20:3260,1 iqn.2026-06.laboratorio.san:storage
-</code></pre></div>
-<hr />
-<h3 id="paso-4-iniciar-sesion-contra-la-cabina-san-nodo1-nodo2-y-nodo3">Paso 4 — Iniciar sesión contra la cabina SAN - <strong><code>nodo1, nodo2 y nodo3</code></strong></h3>
-<div class="highlight"><pre><span></span><code>iscsiadm<span class="w"> </span>-m<span class="w"> </span>node<span class="w"> </span><span class="se">\</span>
--T<span class="w"> </span>iqn.2026-06.laboratorio.san:storage<span class="w"> </span><span class="se">\</span>
--p<span class="w"> </span><span class="m">10</span>.0.0.20<span class="w"> </span><span class="se">\</span>
---login
-</code></pre></div>
+<ul>
+<li>¿Qué hace?: Descarga las utilidades de almacenamiento por red e inicia el 
+  demonio encargado de simular discos duros locales sobre la red TCP/IP.</li>
+</ul>
 <hr />
 <p>&nbsp;</p>
-<h3 id="paso-5-validar-nuevos-discos-nodo1-nodo2-y-nodo3">Paso 5 — Validar nuevos discos - <strong><code>nodo1, nodo2 y nodo3</code></strong></h3>
-<div class="highlight"><pre><span></span><code>lsblk
+<h3 id="paso-3-descubrir-targets-iscsi">Paso 3 — Descubrir Targets iSCSI</h3>
+<p><small>Aplicar en: nodo1, nodo2 y nodo3</small></p>
+<div class="highlight"><pre><span></span><code>iscsiadm<span class="w"> </span>-m<span class="w"> </span>discovery<span class="w"> </span>-t<span class="w"> </span>sendtargets<span class="w"> </span>-p<span class="w"> </span><span class="m">10</span>.0.0.20
 </code></pre></div>
-<p>Ejemplo:</p>
-<div class="highlight"><pre><span></span><code>sda   1G
-sdb  15G
+<ul>
+<li>El comando realiza el descubrimiento de los targets iSCSI disponibles en el servidor especificado, permitiendo identificar los recursos de almacenamiento que pueden ser utilizados por el sistema.<ul>
+<li><code>iscsiadm</code>: Herramienta de administración y configuración de conexiones iSCSI.</li>
+<li><code>-m discovery</code>: Indica que la operación se realizará en modo de descubrimiento de targets iSCSI.</li>
+<li><code>-t sendtargets</code>: Especifica el método SendTargets para solicitar al servidor la lista de targets disponibles.</li>
+<li><code>-p 10.0.0.20</code>: Define la dirección IP del servidor iSCSI que será consultado.</li>
+</ul>
+</li>
+</ul>
+<hr />
+<p>&nbsp;</p>
+<h3 id="paso-4-iniciar-sesion-contra-la-cabina-san">Paso 4 — Iniciar sesión contra la cabina SAN</h3>
+<p><small>Aplicar en: nodo1, nodo2 y nodo3</small></p>
+<div class="highlight"><pre><span></span><code>iscsiadm<span class="w"> </span>-m<span class="w"> </span>node<span class="w"> </span>-T<span class="w"> </span>iqn.2026-06.laboratorio.san:storage<span class="w"> </span>-p<span class="w"> </span><span class="m">10</span>.0.0.20<span class="w"> </span>--login
+</code></pre></div>
+<ul>
+<li>El comando establece una conexión con el target iSCSI especificado, permitiendo que el sistema acceda al almacenamiento remoto exportado por el servidor iSCSI.<ul>
+<li><code>iscsiadm</code>: Herramienta de administración y configuración de conexiones iSCSI.</li>
+<li><code>-m node</code>: Indica que la operación se realizará sobre un nodo iSCSI previamente descubierto.</li>
+<li><code>-T iqn.2026-06.laboratorio.san:storage</code>: Especifica el IQN (iSCSI Qualified Name) del target al que se desea conectar.</li>
+<li><code>-p 10.0.0.20</code>: Define la dirección IP del portal iSCSI donde se encuentra publicado el target.</li>
+<li><code>--login</code>: Inicia la sesión iSCSI y establece la conexión con el target especificado.</li>
+</ul>
+</li>
+</ul>
+<hr />
+<p>&nbsp;</p>
+<h3 id="paso-5-validar-nuevos-discos">Paso 5 — Validar nuevos discos</h3>
+<p><small>Aplicar en: nodo1, nodo2 y nodo3</small></p>
+<div class="highlight"><pre><span></span><code>lsblk
 </code></pre></div>
 <hr />
 <p>&nbsp;</p>
 <h3 id="paso-6-configurar-inicio-automatico-de-sesiones-iscsi">Paso 6 — Configurar inicio automático de sesiones iSCSI</h3>
-<div class="highlight"><pre><span></span><code>iscsiadm<span class="w"> </span>-m<span class="w"> </span>node<span class="w"> </span>--op<span class="w"> </span>update<span class="w"> </span><span class="se">\</span>
--n<span class="w"> </span>node.startup<span class="w"> </span><span class="se">\</span>
--v<span class="w"> </span>automatic
+<div class="highlight"><pre><span></span><code>iscsiadm<span class="w"> </span>-m<span class="w"> </span>node<span class="w"> </span>--op<span class="w"> </span>update<span class="w"> </span>-n<span class="w"> </span>node.startup<span class="w"> </span>-v<span class="w"> </span>automatic
 </code></pre></div>
-<hr />
+<ul>
+<li>El comando configura los nodos iSCSI para que las conexiones se establezcan automáticamente al iniciar el sistema operativo, asegurando que los discos remotos estén disponibles después de cada reinicio.<ul>
+<li><code>iscsiadm</code>: Herramienta de administración y configuración de conexiones iSCSI.</li>
+<li><code>-m node</code>: Indica que la operación se realizará sobre los nodos iSCSI configurados en el sistema.</li>
+<li><code>--op update</code>: Especifica que se modificará un parámetro de configuración existente.</li>
+<li><code>-n node.startup</code>: Define el parámetro de configuración relacionado con el comportamiento de inicio de la conexión iSCSI.</li>
+<li><code>-v automatic</code>: Establece el valor del parámetro para que la conexión iSCSI se inicie automáticamente durante el arranque del sistema.</li>
+</ul>
+</li>
+</ul>
 <p>&nbsp;</p>
-<h3 id="paso-7-reiniciar-servicio-iscsi">Paso 7 — Reiniciar servicio iSCSI</h3>
 <div class="highlight"><pre><span></span><code>systemctl<span class="w"> </span>restart<span class="w"> </span>iscsid
 </code></pre></div>
+<ul>
+<li>El comando reinicia el servicio iscsid, responsable de gestionar las conexiones y sesiones iSCSI en el sistema. Esto permite aplicar cambios recientes en la configuración y restablecer la comunicación con los dispositivos de almacenamiento iSCSI.<ul>
+<li><code>systemctl</code>: Herramienta utilizada para administrar servicios gestionados por systemd.</li>
+<li><code>restart</code>: Indica a systemctl que debe detener e iniciar nuevamente el servicio especificado.</li>
+<li><code>iscsid</code>: Nombre del servicio iSCSI Daemon que administra las sesiones y autenticación de las conexiones iSCSI.</li>
+</ul>
+</li>
+</ul>
 <hr />
+<p>&nbsp;</p>
 <h2 id="fase-3-instalacion-de-pacemaker-corosync-y-pcs">FASE 3 — Instalación de Pacemaker, Corosync y PCS</h2>
 <p>&nbsp;</p>
 <h3 id="paso-1-habilitar-repositorio-high-availability">Paso 1 — Habilitar repositorio High Availability</h3>
-<p>Ejecutar en los tres nodos:</p>
+<p><small>Aplicar en: nodo1, nodo2 y nodo3</small></p>
+<p>Ejecutar:</p>
 <div class="highlight"><pre><span></span><code>dnf<span class="w"> </span>config-manager<span class="w"> </span>--set-enabled<span class="w"> </span>highavailability
 </code></pre></div>
-<hr />
-<p>&nbsp;</p>
-<h3 id="paso-2-limpiar-metadatos-de-repositorios">Paso 2 — Limpiar metadatos de repositorios</h3>
 <div class="highlight"><pre><span></span><code>dnf<span class="w"> </span>clean<span class="w"> </span>all
 </code></pre></div>
-<hr />
-<p>&nbsp;</p>
-<h3 id="paso-3-instalar-paquetes-del-cluster">Paso 3 — Instalar paquetes del Cluster</h3>
 <div class="highlight"><pre><span></span><code>dnf<span class="w"> </span>install<span class="w"> </span>-y<span class="w"> </span>pacemaker<span class="w"> </span>pcs<span class="w"> </span>corosync<span class="w"> </span>sbd<span class="w"> </span>fence-agents-sbd
 </code></pre></div>
-<hr />
-<p>&nbsp;</p>
-<h3 id="paso-4-validar-instalacion">Paso 4 — Validar instalación</h3>
 <div class="highlight"><pre><span></span><code>rpm<span class="w"> </span>-qa<span class="w"> </span><span class="p">|</span><span class="w"> </span>egrep<span class="w"> </span><span class="s2">&quot;pacemaker|pcs|corosync|sbd&quot;</span>
 </code></pre></div>
-<hr />
-<p>&nbsp;</p>
-<h3 id="paso-5-habilitar-servicio-pcsd">Paso 5 — Habilitar servicio pcsd</h3>
 <div class="highlight"><pre><span></span><code>systemctl<span class="w"> </span><span class="nb">enable</span><span class="w"> </span>--now<span class="w"> </span>pcsd
 </code></pre></div>
 <hr />
 <p>&nbsp;</p>
 <h3 id="paso-6-configurar-contrasena-del-usuario-hacluster">Paso 6 — Configurar contraseña del usuario hacluster</h3>
-<p>Ejecutar en los tres nodos:</p>
+<p><small>Aplicar en: nodo1, nodo2 y nodo3</small></p>
+<p>Ejecutar:</p>
 <div class="highlight"><pre><span></span><code>passwd<span class="w"> </span>hacluster
 </code></pre></div>
 <p>Utilizar exactamente la misma contraseña en todos los servidores.</p>
@@ -6659,132 +6705,206 @@ sdb  15G
 <hr />
 <p>&nbsp;</p>
 <h1 id="fase-4-creacion-del-cluster">FASE 4 — Creación del Cluster</h1>
-<p>⚠️ Los siguientes pasos se ejecutan únicamente desde:</p>
-<div class="highlight"><pre><span></span><code>nodo1.laboratorio
-</code></pre></div>
-<hr />
-<h3 id="paso-1-autenticar-nodos">Paso 1 — Autenticar nodos</h3>
-<div class="highlight"><pre><span></span><code>pcs<span class="w"> </span>host<span class="w"> </span>auth<span class="w"> </span><span class="se">\</span>
-nodo1.laboratorio<span class="w"> </span><span class="se">\</span>
-nodo2.laboratorio<span class="w"> </span><span class="se">\</span>
-nodo3.laboratorio<span class="w"> </span><span class="se">\</span>
--u<span class="w"> </span>hacluster
-</code></pre></div>
-<p>Ingresar la contraseña cuando sea solicitada.</p>
-<hr />
+<p>⚠️ <small>Aplicar SOLO en: <strong>nodo1</strong></small></p>
 <p>&nbsp;</p>
-<h3 id="paso-2-validar-autenticacion">Paso 2 — Validar autenticación</h3>
+<p><strong>Autenticar nodos</strong></p>
+<div class="highlight"><pre><span></span><code><span class="c1"># pcs host auth nodo1.laboratorio nodo2.laboratorio nodo3.laboratorio -u hacluster</span>
+</code></pre></div>
+<ul>
+<li>
+<p>Ingresar la contraseña cuando sea solicitada.</p>
+</li>
+<li>
+<p>El comando autentica los nodos especificados para que puedan formar parte del clúster y comunicarse entre sí mediante la herramienta PCS (Pacemaker/Corosync Configuration System).</p>
+<ul>
+<li><code>pcs</code>: Herramienta utilizada para administrar y configurar clústeres basados en Pacemaker y Corosync.</li>
+<li><code>host auth</code>: Indica que se realizará el proceso de autenticación entre los nodos del clúster.</li>
+<li><code>nodo1.laboratorio nodo2.laboratorio nodo3.laboratorio</code>: Lista de nodos que serán autenticados para participar en el clúster.</li>
+<li><code>-u hacluster</code>: Especifica el usuario utilizado para la autenticación entre los nodos, normalmente el usuario de administración del clúster.</li>
+</ul>
+</li>
+</ul>
+<p>&nbsp;</p>
+<p><strong>Validar autenticación</strong></p>
 <div class="highlight"><pre><span></span><code>pcs<span class="w"> </span>host<span class="w"> </span>auth
 </code></pre></div>
-<hr />
-<h3 id="paso-3-crear-cluster">Paso 3 — Crear Cluster</h3>
 <p>&nbsp;</p>
-<div class="highlight"><pre><span></span><code>pcs<span class="w"> </span>cluster<span class="w"> </span>setup<span class="w"> </span>cluster_laboratorio<span class="w"> </span><span class="se">\</span>
-nodo1.laboratorio<span class="w"> </span><span class="se">\</span>
-nodo2.laboratorio<span class="w"> </span><span class="se">\</span>
-nodo3.laboratorio
+<p><strong>Crear Cluster</strong></p>
+<div class="highlight"><pre><span></span><code>pcs<span class="w"> </span>cluster<span class="w"> </span>setup<span class="w"> </span>cluster_laboratorio<span class="w"> </span>nodo1.laboratorio<span class="w"> </span>nodo2.laboratorio<span class="w"> </span>nodo3.laboratorio
 </code></pre></div>
-<hr />
+<ul>
+<li>El comando crea y configura un nuevo clúster de Pacemaker/Corosync utilizando los nodos especificados, estableciendo la configuración inicial necesaria para la comunicación y gestión de alta disponibilidad.<ul>
+<li><code>pcs</code>: Herramienta utilizada para administrar y configurar clústeres basados en Pacemaker y Corosync.</li>
+<li><code>cluster setup</code>: Indica que se realizará la creación y configuración inicial de un clúster.</li>
+<li><code>cluster_laboratorio</code>: Nombre asignado al clúster.</li>
+<li><code>nodo1.laboratorio nodo2.laboratorio nodo3.laboratorio</code>: Lista de nodos que formarán parte del clúster.</li>
+</ul>
+</li>
+</ul>
 <p>&nbsp;</p>
-<h3 id="paso-4-arrancar-cluster">Paso 4 — Arrancar Cluster</h3>
+<p><strong>Arrancar Cluster</strong></p>
 <div class="highlight"><pre><span></span><code>pcs<span class="w"> </span>cluster<span class="w"> </span>start<span class="w"> </span>--all
 </code></pre></div>
-<hr />
+<ul>
+<li>El comando inicia los servicios del clúster en todos los nodos configurados, permitiendo que Pacemaker y Corosync comiencen a operar y gestionar los recursos de alta disponibilidad.<ul>
+<li><code>pcs</code>: Herramienta utilizada para administrar y configurar clústeres basados en Pacemaker y Corosync.</li>
+<li><code>cluster start</code>: Indica que se iniciarán los servicios del clúster.</li>
+<li><code>--all</code>: Especifica que la acción se ejecutará en todos los nodos que forman parte del clúster.</li>
+</ul>
+</li>
+</ul>
 <p>&nbsp;</p>
-<h3 id="paso-5-habilitar-inicio-automatico">Paso 5 — Habilitar inicio automático</h3>
+<p><strong>Habilitar inicio automático</strong>
 <div class="highlight"><pre><span></span><code>pcs<span class="w"> </span>cluster<span class="w"> </span><span class="nb">enable</span><span class="w"> </span>--all
-</code></pre></div>
-<hr />
+</code></pre></div></p>
+<ul>
+<li>El comando habilita los servicios del clúster en todos los nodos configurados para que se inicien automáticamente durante el arranque del sistema operativo.<ul>
+<li><code>pcs</code>: Herramienta utilizada para administrar y configurar clústeres basados en Pacemaker y Corosync.</li>
+<li><code>cluster enable</code>: Indica que los servicios del clúster serán habilitados para iniciar automáticamente.</li>
+<li><code>--all</code>: Especifica que la acción se aplicará a todos los nodos que forman parte del clúster.</li>
+</ul>
+</li>
+</ul>
 <p>&nbsp;</p>
-<h3 id="paso-6-verificar-estado">Paso 6 — Verificar estado</h3>
+<p><strong>Verificar estado del cluster</strong></p>
 <div class="highlight"><pre><span></span><code>pcs<span class="w"> </span>status
 </code></pre></div>
-<p>Ejemplo esperado:</p>
-<div class="highlight"><pre><span></span><code>Cluster name: cluster_laboratorio
-Stack: corosync
-Current DC: nodo1
-3 nodes configured
-</code></pre></div>
-<hr />
+<ul>
+<li>El comando muestra el estado general del clúster, incluyendo los nodos, recursos, servicios y condiciones actuales de Pacemaker y Corosync.<ul>
+<li><code>pcs</code>: Herramienta utilizada para administrar y configurar clústeres basados en Pacemaker y Corosync.</li>
+<li><code>status</code>: Muestra un resumen del estado operativo del clúster y sus componentes.</li>
+</ul>
+</li>
+</ul>
 <p>&nbsp;</p>
-<h3 id="paso-7-validar-quorum">Paso 7 — Validar quorum</h3>
+<p><strong>Validar quorum</strong></p>
 <div class="highlight"><pre><span></span><code>pcs<span class="w"> </span>quorum<span class="w"> </span>status
 </code></pre></div>
-<p>Debe mostrarse:</p>
-<div class="highlight"><pre><span></span><code>Quorate: Yes
-</code></pre></div>
-<hr />
+<ul>
+<li>El comando muestra información detallada sobre el estado del quórum del clúster, permitiendo verificar si existe el número suficiente de nodos activos para mantener la operación y evitar situaciones de partición del clúster.<ul>
+<li><code>pcs</code>: Herramienta utilizada para administrar y configurar clústeres basados en Pacemaker y Corosync.</li>
+<li><code>quorum status</code>: Muestra el estado actual del quórum y la información relacionada con la membresía del clúster.</li>
+</ul>
+</li>
+</ul>
 <p>&nbsp;</p>
-<h3 id="paso-8-validar-estado-de-corosync">Paso 8 — Validar estado de Corosync</h3>
+<p><strong>Validar estado de Corosync</strong></p>
 <div class="highlight"><pre><span></span><code>corosync-cfgtool<span class="w"> </span>-s
 </code></pre></div>
-<hr />
+<ul>
+<li>El comando muestra el estado de la comunicación y conectividad de Corosync entre los nodos del clúster, permitiendo verificar que los enlaces de red se encuentren operativos.<ul>
+<li><code>corosync-cfgtool</code>: Herramienta utilizada para consultar y administrar la configuración y el estado de Corosync.</li>
+<li><code>-s</code>: Muestra el estado actual de los enlaces y la comunicación entre los nodos del clúster.</li>
+</ul>
+</li>
+</ul>
 <p>&nbsp;</p>
-<h3 id="paso-9-validar-membresia-del-cluster">Paso 9 — Validar membresía del Cluster</h3>
+<p><strong>Validar membresía del Cluster</strong></p>
 <div class="highlight"><pre><span></span><code>corosync-quorumtool
 </code></pre></div>
-<p>Ejemplo:</p>
-<div class="highlight"><pre><span></span><code>Membership information
-----------------------
-Node ID      Votes Name
-1               1 nodo1
-2               1 nodo2
-3               1 nodo3
-</code></pre></div>
+<ul>
+<li>El comando muestra información sobre el quórum del clúster, permitiendo verificar si existe el número suficiente de nodos activos para que el clúster pueda operar correctamente.<ul>
+<li><code>corosync-quorumtool</code>: Herramienta utilizada para consultar el estado del quórum y la membresía del clúster gestionado por Corosync.</li>
+</ul>
+</li>
+</ul>
 <hr />
 <p>&nbsp;</p>
 <h1 id="fase-5-configuracion-de-fencing-sbd">FASE 5 — Configuración de Fencing SBD</h1>
+<p><small>Aplicar en: <strong>nodo1</strong></small></p>
 <p>⚠️ Esta fase protege al Cluster contra Split-Brain.</p>
-<hr />
 <p>&nbsp;</p>
-<h3 id="paso-1-validar-disco-dedicado-para-sbd">Paso 1 — Validar disco dedicado para SBD</h3>
+<p><strong>Validar disco de </strong>1GiB<strong> dedicado para SBD</strong></p>
 <div class="highlight"><pre><span></span><code>lsblk
 </code></pre></div>
-<p>Ejemplo:</p>
-<div class="highlight"><pre><span></span><code>sda   1G
-</code></pre></div>
-<hr />
 <p>&nbsp;</p>
-<h3 id="paso-2-inicializar-disco-sbd">Paso 2 — Inicializar disco SBD</h3>
-<p>Ejecutar únicamente en nodo1:</p>
+<p><strong>Inicializar disco SBD</strong></p>
 <div class="highlight"><pre><span></span><code>sbd<span class="w"> </span>-d<span class="w"> </span>/dev/sda<span class="w"> </span>create
 </code></pre></div>
-<hr />
-<h3 id="paso-3-validar-metadata-sbd">Paso 3 — Validar metadata SBD</h3>
+<ul>
+<li>El comando inicializa y crea la estructura SBD (STONITH Block Device) sobre el dispositivo especificado, preparándolo para ser utilizado como mecanismo de fencing en el clúster de alta disponibilidad.<ul>
+<li><code>sbd</code>: Herramienta utilizada para administrar dispositivos SBD empleados por Pacemaker para operaciones de fencing.</li>
+<li><code>-d /dev/sda</code>: Especifica el dispositivo de almacenamiento donde se creará la partición o metadatos SBD.</li>
+<li><code>create</code>: Crea e inicializa la estructura SBD en el dispositivo seleccionado.</li>
+</ul>
+</li>
+</ul>
+<p>&nbsp;</p>
+<p><strong>Validar metadata SBD</strong></p>
 <div class="highlight"><pre><span></span><code>sbd<span class="w"> </span>-d<span class="w"> </span>/dev/sda<span class="w"> </span>dump
 </code></pre></div>
-<hr />
+<ul>
+<li>El comando muestra la información y los metadatos almacenados en el dispositivo SBD especificado, permitiendo verificar que la configuración se haya creado correctamente.<ul>
+<li><code>sbd</code>: Herramienta utilizada para administrar dispositivos SBD empleados por Pacemaker para operaciones de fencing.</li>
+<li><code>-d /dev/sda</code>: Especifica el dispositivo SBD que será consultado.</li>
+<li><code>dump</code>: Muestra el contenido y los metadatos almacenados en el dispositivo SBD.</li>
+</ul>
+</li>
+</ul>
 <p>&nbsp;</p>
-<h3 id="paso-4-registrar-cada-nodo-en-sbd">Paso 4 — Registrar cada nodo en SBD</h3>
-<p>Ejecutar en todos los nodos:</p>
+<p><strong>Registrar cada nodo en SBD</strong></p>
+<p>Ejecutar:
+<small>Aplicar en: <strong>nodo1, nodo2 y nodo3</strong></small></p>
 <div class="highlight"><pre><span></span><code>sbd<span class="w"> </span>-d<span class="w"> </span>/dev/sda<span class="w"> </span>allocate<span class="w"> </span><span class="k">$(</span>hostname<span class="k">)</span>
 </code></pre></div>
-<hr />
-<h3 id="paso-5-validar-slots-registrados">Paso 5 — Validar slots registrados</h3>
+<ul>
+<li>El comando asigna un slot en el dispositivo SBD al nodo actual, permitiendo que el clúster pueda gestionar operaciones de fencing y monitoreo para dicho nodo.<ul>
+<li><code>sbd</code>: Herramienta utilizada para administrar dispositivos SBD empleados por Pacemaker para operaciones de fencing.</li>
+<li><code>-d /dev/sda</code>: Especifica el dispositivo SBD donde se realizará la asignación.</li>
+<li><code>allocate</code>: Crea o reserva un slot para un nodo dentro del dispositivo SBD.</li>
+<li><code>$(hostname)</code>: Sustituye automáticamente el nombre del host actual, asignando el slot al nodo donde se ejecuta el comando.</li>
+</ul>
+</li>
+</ul>
+<p>&nbsp;</p>
+<p><strong>Validar slots registrados</strong></p>
 <div class="highlight"><pre><span></span><code>sbd<span class="w"> </span>-d<span class="w"> </span>/dev/sda<span class="w"> </span>list
 </code></pre></div>
-<p>Ejemplo:</p>
-<div class="highlight"><pre><span></span><code>0 nodo1.laboratorio
-1 nodo2.laboratorio
-2 nodo3.laboratorio
-</code></pre></div>
-<hr />
-<h3 id="paso-6-cargar-watchdog-del-kernel">Paso 6 — Cargar Watchdog del Kernel</h3>
+<ul>
+<li>El comando muestra la lista de slots configurados en el dispositivo SBD, permitiendo verificar qué nodos han sido registrados para las operaciones de fencing del clúster.<ul>
+<li><code>sbd</code>: Herramienta utilizada para administrar dispositivos SBD empleados por Pacemaker para operaciones de fencing.</li>
+<li><code>-d /dev/sda</code>: Especifica el dispositivo SBD que será consultado.</li>
+<li><code>list</code>: Muestra los slots y nodos registrados en el dispositivo SBD.</li>
+</ul>
+</li>
+</ul>
+<p>&nbsp;</p>
+<p><strong>Cargar Watchdog del Kernel</strong></p>
 <div class="highlight"><pre><span></span><code>modprobe<span class="w"> </span>softdog
 </code></pre></div>
-<hr />
-<h3 id="paso-7-configurar-carga-automatica">Paso 7 — Configurar carga automática</h3>
+<ul>
+<li>El comando carga en el kernel el módulo <code>softdog</code>, habilitando un watchdog por software que puede ser utilizado por el clúster para detectar fallos y realizar acciones de recuperación o fencing cuando sea necesario.<ul>
+<li><code>modprobe</code>: Herramienta utilizada para cargar y administrar módulos del kernel de Linux.</li>
+<li><code>softdog</code>: Módulo de watchdog por software que supervisa el sistema y puede forzar un reinicio si deja de recibir señales de funcionamiento adecuadas.</li>
+</ul>
+</li>
+</ul>
+<p>&nbsp;</p>
+<p><strong>Configurar carga automática</strong></p>
 <div class="highlight"><pre><span></span><code><span class="nb">echo</span><span class="w"> </span>softdog<span class="w"> </span>&gt;<span class="w"> </span>/etc/modules-load.d/softdog.conf
 </code></pre></div>
-<hr />
-<h3 id="paso-8-validar-watchdog">Paso 8 — Validar watchdog</h3>
+<ul>
+<li>El comando configura el sistema para que el módulo <code>softdog</code> se cargue automáticamente durante el arranque, garantizando la disponibilidad del watchdog por software después de cada reinicio.<ul>
+<li><code>echo softdog</code>: Envía el nombre del módulo que se desea cargar automáticamente.</li>
+<li><code>&gt;</code>: Redirige la salida del comando hacia un archivo, sobrescribiendo su contenido si ya existe.</li>
+<li><code>/etc/modules-load.d/softdog.conf</code>: Archivo de configuración utilizado por el sistema para cargar módulos del kernel automáticamente durante el inicio.</li>
+</ul>
+</li>
+</ul>
+<p>&nbsp;</p>
+<p><strong>Validar watchdog</strong></p>
 <div class="highlight"><pre><span></span><code>ls<span class="w"> </span>-l<span class="w"> </span>/dev/watchdog
 </code></pre></div>
-<p>Debe existir:</p>
-<div class="highlight"><pre><span></span><code>/dev/watchdog
-</code></pre></div>
-<hr />
-<h3 id="paso-9-configurar-sbd">Paso 9 — Configurar SBD</h3>
+<ul>
+<li>El comando muestra información detallada sobre el dispositivo <code>watchdog</code>, permitiendo verificar que el watchdog se encuentra disponible y correctamente creado en el sistema.<ul>
+<li><code>ls</code>: Herramienta utilizada para listar archivos y directorios.</li>
+<li><code>-l</code>: Muestra la información en formato detallado, incluyendo permisos, propietario, grupo, tamaño y fecha de modificación.</li>
+<li><code>/dev/watchdog</code>: Archivo de dispositivo que proporciona acceso al watchdog del sistema.</li>
+</ul>
+</li>
+</ul>
+<p>&nbsp;</p>
+<p><strong>Configurar SBD</strong></p>
 <p>Editar:</p>
 <div class="highlight"><pre><span></span><code>vi<span class="w"> </span>/etc/sysconfig/sbd
 </code></pre></div>
@@ -6792,69 +6912,47 @@ Node ID      Votes Name
 <div class="highlight"><pre><span></span><code><span class="nv">SBD_DEVICE</span><span class="o">=</span><span class="s2">&quot;/dev/sda&quot;</span>
 <span class="nv">SBD_WATCHDOG_DEV</span><span class="o">=</span><span class="s2">&quot;/dev/watchdog&quot;</span>
 </code></pre></div>
-<hr />
-<h3 id="paso-10-habilitar-servicio-sbd">Paso 10 — Habilitar servicio SBD</h3>
+<p>&nbsp;</p>
+<p><strong>Habilitar servicio SBD</strong></p>
 <div class="highlight"><pre><span></span><code>systemctl<span class="w"> </span><span class="nb">enable</span><span class="w"> </span>sbd
 </code></pre></div>
-<hr />
-<h3 id="paso-11-reiniciar-daemon">Paso 11 — Reiniciar daemon</h3>
+<p>&nbsp;</p>
+<p><strong>Reiniciar daemon</strong></p>
 <div class="highlight"><pre><span></span><code>systemctl<span class="w"> </span>daemon-reload
 </code></pre></div>
-<hr />
-<h3 id="paso-12-arrancar-servicio-sbd">Paso 12 — Arrancar servicio SBD</h3>
+<p>&nbsp;</p>
+<p><strong>Arrancar servicio SBD</strong></p>
 <div class="highlight"><pre><span></span><code>systemctl<span class="w"> </span>start<span class="w"> </span>sbd
 </code></pre></div>
-<hr />
-<h3 id="paso-13-verificar-servicio">Paso 13 — Verificar servicio</h3>
+<p>&nbsp;</p>
+<p><strong>Verificar servicio</strong></p>
 <div class="highlight"><pre><span></span><code>systemctl<span class="w"> </span>status<span class="w"> </span>sbd
 </code></pre></div>
-<p>Debe visualizarse:</p>
-<div class="highlight"><pre><span></span><code>active (running)
-</code></pre></div>
 <hr />
+<p>&nbsp;</p>
 <h1 id="fase-6-configuracion-de-stonith-mediante-sbd">FASE 6 — Configuración de STONITH mediante SBD</h1>
-<p>⚠️ Todos los comandos de esta fase se ejecutan únicamente desde:</p>
-<div class="highlight"><pre><span></span><code>nodo1.laboratorio
-</code></pre></div>
+<p>⚠️ <small>Aplicar en: <strong>nodo1</strong></small></p>
 <hr />
-<h3 id="paso-1-crear-recurso-stonith">Paso 1 — Crear recurso STONITH</h3>
-<div class="highlight"><pre><span></span><code>pcs<span class="w"> </span>stonith<span class="w"> </span>create<span class="w"> </span>mi-fencing-sbd<span class="w"> </span><span class="se">\</span>
-fence_sbd<span class="w"> </span><span class="se">\</span>
-<span class="nv">devices</span><span class="o">=</span>/dev/sda<span class="w"> </span><span class="se">\</span>
-<span class="nv">pcmk_host_list</span><span class="o">=</span><span class="s2">&quot;nodo1.laboratorio nodo2.laboratorio nodo3.laboratorio&quot;</span>
+<p>Crear recurso STONITH</p>
+<div class="highlight"><pre><span></span><code>pcs<span class="w"> </span>stonith<span class="w"> </span>create<span class="w"> </span>mi-fencing-sbd<span class="w"> </span>fence_sbd<span class="w"> </span><span class="nv">devices</span><span class="o">=</span>/dev/sda<span class="w"> </span><span class="nv">pcmk_host_list</span><span class="o">=</span><span class="s2">&quot;nodo1.laboratorio nodo2.laboratorio nodo3.laboratorio&quot;</span>
 </code></pre></div>
-<hr />
-<h3 id="paso-2-verificar-recurso-creado">Paso 2 — Verificar recurso creado</h3>
+<p><strong>Verificar recurso creado</strong>
 <div class="highlight"><pre><span></span><code>pcs<span class="w"> </span>stonith<span class="w"> </span>config
-</code></pre></div>
-<hr />
-<h3 id="paso-3-verificar-estado-stonith">Paso 3 — Verificar estado STONITH</h3>
+</code></pre></div></p>
+<p><strong>Verificar estado STONITH</strong></p>
 <div class="highlight"><pre><span></span><code>pcs<span class="w"> </span>status
 </code></pre></div>
-<p>Debe visualizarse un recurso similar a:</p>
-<div class="highlight"><pre><span></span><code>mi-fencing-sbd (stonith:fence_sbd)
-</code></pre></div>
-<hr />
-<h3 id="paso-4-habilitar-stonith">Paso 4 — Habilitar STONITH</h3>
+<p><strong>Habilitar STONITH</strong></p>
 <div class="highlight"><pre><span></span><code>pcs<span class="w"> </span>property<span class="w"> </span><span class="nb">set</span><span class="w"> </span>stonith-enabled<span class="o">=</span><span class="nb">true</span>
 </code></pre></div>
-<hr />
-<h3 id="paso-5-verificar-propiedad">Paso 5 — Verificar propiedad</h3>
+<p><strong>Verificar propiedad</strong></p>
 <div class="highlight"><pre><span></span><code>pcs<span class="w"> </span>property<span class="w"> </span>config
 </code></pre></div>
-<p>Ejemplo:</p>
-<div class="highlight"><pre><span></span><code>stonith-enabled=true
-</code></pre></div>
-<hr />
-<h3 id="paso-6-validar-configuracion-general">Paso 6 — Validar configuración general</h3>
+<p><strong>Validar configuración general</strong></p>
 <div class="highlight"><pre><span></span><code>pcs<span class="w"> </span>status
 </code></pre></div>
-<p>No deben existir errores relacionados con:</p>
-<div class="highlight"><pre><span></span><code>STONITH
-Fencing
-SBD
-</code></pre></div>
 <hr />
+<p>&nbsp;</p>
 <h1 id="fase-7-preparacion-del-almacenamiento-compartido">FASE 7 — Preparación del Almacenamiento Compartido</h1>
 <p>⚠️ Debido a cambios en Rocky Linux 10, la arquitectura soportada utiliza:</p>
 <div class="highlight"><pre><span></span><code>LVM-activate
@@ -6866,40 +6964,30 @@ DLM
 Resilient Storage
 </code></pre></div>
 <hr />
-<h3 id="paso-1-validar-disco-compartido">Paso 1 — Validar disco compartido</h3>
+<p><strong>Validar disco compartido</strong></p>
 <div class="highlight"><pre><span></span><code>lsblk
 </code></pre></div>
-<p>Ejemplo:</p>
-<div class="highlight"><pre><span></span><code>sdb 15G
-</code></pre></div>
-<hr />
-<h3 id="paso-2-registrar-disco-en-catalogo-lvm">Paso 2 — Registrar disco en catálogo LVM</h3>
+<p><strong>Registrar disco en catálogo LVM</strong></p>
 <p>Ejecutar en todos los nodos:</p>
 <div class="highlight"><pre><span></span><code>lvmdevices<span class="w"> </span>--adddev<span class="w"> </span>/dev/sdb
 </code></pre></div>
 <hr />
-<h3 id="paso-3-validar-dispositivo-registrado">Paso 3 — Validar dispositivo registrado</h3>
+<p><strong>Validar dispositivo registrado</strong></p>
 <div class="highlight"><pre><span></span><code>lvmdevices
 </code></pre></div>
 <hr />
-<h3 id="paso-4-crear-physical-volume">Paso 4 — Crear Physical Volume</h3>
+<p><strong>Crear Physical Volume</strong></p>
 <p>Ejecutar únicamente en nodo1:</p>
 <div class="highlight"><pre><span></span><code>pvcreate<span class="w"> </span>/dev/sdb
 </code></pre></div>
-<hr />
-<h3 id="paso-5-validar-pv">Paso 5 — Validar PV</h3>
+<p><strong>Validar PV</strong></p>
 <div class="highlight"><pre><span></span><code>pvs
 </code></pre></div>
-<p>Ejemplo:</p>
-<div class="highlight"><pre><span></span><code>PV         VG Fmt Attr PSize
-/dev/sdb      lvm2 --- 15.00g
-</code></pre></div>
-<hr />
-<h3 id="paso-6-crear-volume-group">Paso 6 — Crear Volume Group</h3>
+<p><strong>Crear Volume Group</strong></p>
 <div class="highlight"><pre><span></span><code>vgcreate<span class="w"> </span>vg_datos_ha<span class="w"> </span>/dev/sdb
 </code></pre></div>
 <hr />
-<h3 id="paso-7-validar-vg">Paso 7 — Validar VG</h3>
+<p><strong>Validar VG</strong></p>
 <div class="highlight"><pre><span></span><code>vgs
 </code></pre></div>
 <p>Ejemplo:</p>
@@ -6907,19 +6995,16 @@ Resilient Storage
 vg_datos_ha   1   0 wz--n- 15.00g
 </code></pre></div>
 <hr />
-<h3 id="paso-8-forzar-descubrimiento-en-nodos-secundarios">Paso 8 — Forzar descubrimiento en nodos secundarios</h3>
+<p><strong>Forzar descubrimiento en nodos secundarios</strong></p>
 <p>Ejecutar en nodo2 y nodo3:</p>
 <div class="highlight"><pre><span></span><code>vgscan
 </code></pre></div>
 <hr />
-<h3 id="paso-9-crear-logical-volume">Paso 9 — Crear Logical Volume</h3>
-<div class="highlight"><pre><span></span><code>lvcreate<span class="w"> </span><span class="se">\</span>
--l<span class="w"> </span><span class="m">100</span>%FREE<span class="w"> </span><span class="se">\</span>
---name<span class="w"> </span>lv_almacenamiento<span class="w"> </span><span class="se">\</span>
-vg_datos_ha
+<p><strong>Crear Logical Volume</strong></p>
+<div class="highlight"><pre><span></span><code>lvcreate<span class="w"> </span>-l<span class="w"> </span><span class="m">100</span>%FREE<span class="w"> </span>--name<span class="w"> </span>lv_almacenamiento<span class="w"> </span>vg_datos_ha
 </code></pre></div>
 <hr />
-<h3 id="paso-10-validar-lv">Paso 10 — Validar LV</h3>
+<p><strong>Validar LV</strong></p>
 <div class="highlight"><pre><span></span><code>lvs
 </code></pre></div>
 <p>Ejemplo:</p>
@@ -6927,39 +7012,41 @@ vg_datos_ha
 lv_almacenamiento vg_datos_ha
 </code></pre></div>
 <hr />
-<h3 id="paso-11-formatear-volumen-xfs">Paso 11 — Formatear volumen XFS</h3>
+<p><strong>Formatear volumen XFS</strong></p>
 <div class="highlight"><pre><span></span><code>mkfs.xfs<span class="w"> </span>/dev/vg_datos_ha/lv_almacenamiento
 </code></pre></div>
 <hr />
-<h3 id="paso-12-validar-filesystem">Paso 12 — Validar Filesystem</h3>
+<p><strong>Validar Filesystem</strong></p>
 <div class="highlight"><pre><span></span><code>blkid
 </code></pre></div>
 <p>Ejemplo:</p>
 <div class="highlight"><pre><span></span><code>/dev/mapper/vg_datos_ha-lv_almacenamiento: TYPE=&quot;xfs&quot;
 </code></pre></div>
 <hr />
-<h3 id="paso-13-desactivar-volume-group">Paso 13 — Desactivar Volume Group</h3>
+<p><strong>Desactivar Volume Group</strong></p>
 <p>⚠️ Paso obligatorio.</p>
 <div class="highlight"><pre><span></span><code>vgchange<span class="w"> </span>-an<span class="w"> </span>vg_datos_ha
 </code></pre></div>
 <hr />
-<h3 id="paso-14-verificar-vg-inactivo">Paso 14 — Verificar VG inactivo</h3>
+<p><strong>Verificar VG inactivo</strong></p>
 <div class="highlight"><pre><span></span><code>vgs
 </code></pre></div>
 <p>La columna Attr debe indicar que el VG no se encuentra activo.</p>
 <hr />
+<p>&nbsp;</p>
 <h1 id="fase-8-configuracion-de-exclusion-de-activacion-automatica">FASE 8 — Configuración de Exclusión de Activación Automática</h1>
+<p>&nbsp;</p>
 <p>⚠️ Ejecutar en todos los nodos.</p>
 <hr />
-<h3 id="paso-1-respaldar-configuracion-lvm">Paso 1 — Respaldar configuración LVM</h3>
+<p><strong>Respaldar configuración LVM</strong></p>
 <div class="highlight"><pre><span></span><code>cp<span class="w"> </span>/etc/lvm/lvm.conf<span class="w"> </span>/etc/lvm/lvm.conf.bak
 </code></pre></div>
 <hr />
-<h3 id="paso-2-editar-configuracion">Paso 2 — Editar configuración</h3>
+<p><strong>Editar configuración</strong></p>
 <div class="highlight"><pre><span></span><code>vi<span class="w"> </span>/etc/lvm/lvm.conf
 </code></pre></div>
 <hr />
-<h3 id="paso-3-modificar-seccion-activation">Paso 3 — Modificar sección activation</h3>
+<p><strong>Modificar sección activation</strong></p>
 <p>Buscar:</p>
 <div class="highlight"><pre><span></span><code>activation {
 </code></pre></div>
@@ -6971,85 +7058,76 @@ lv_almacenamiento vg_datos_ha
 }
 </code></pre></div>
 <hr />
-<h3 id="paso-4-validar-sintaxis">Paso 4 — Validar sintaxis</h3>
+<p><strong>Validar sintaxis</strong></p>
 <div class="highlight"><pre><span></span><code>grep<span class="w"> </span>-n<span class="w"> </span>volume_list<span class="w"> </span>/etc/lvm/lvm.conf
 </code></pre></div>
 <hr />
-<h3 id="paso-5-regenerar-initramfs">Paso 5 — Regenerar initramfs</h3>
+<p><strong>Regenerar initramfs</strong></p>
 <div class="highlight"><pre><span></span><code>dracut<span class="w"> </span>-f<span class="w"> </span>--regenerate-all
 </code></pre></div>
 <hr />
-<h3 id="paso-6-verificar-finalizacion-correcta">Paso 6 — Verificar finalización correcta</h3>
+<p><strong>Verificar finalización correcta</strong></p>
 <div class="highlight"><pre><span></span><code><span class="nb">echo</span><span class="w"> </span><span class="nv">$?</span>
 </code></pre></div>
 <p>Resultado esperado:</p>
 <div class="highlight"><pre><span></span><code>0
 </code></pre></div>
 <hr />
-<h3 id="paso-7-reiniciar-servidor">Paso 7 — Reiniciar servidor</h3>
+<p><strong>Reiniciar servidor</strong></p>
 <p>Ejecutar nodo por nodo.</p>
 <div class="highlight"><pre><span></span><code>reboot
 </code></pre></div>
 <hr />
-<h3 id="paso-8-validar-que-el-vg-compartido-no-se-active-automaticamente">Paso 8 — Validar que el VG compartido no se active automáticamente</h3>
+<p><strong>Validar que el VG compartido no se active automáticamente</strong></p>
 <div class="highlight"><pre><span></span><code>lvs
 </code></pre></div>
 <p>El volumen compartido no debe encontrarse montado ni activo.</p>
 <hr />
-<h3 id="paso-9-validar-estado-general-del-cluster">Paso 9 — Validar estado general del Cluster</h3>
+<p><strong>Validar estado general del Cluster</strong></p>
 <div class="highlight"><pre><span></span><code>pcs<span class="w"> </span>status
 </code></pre></div>
 <p>Todos los nodos deben encontrarse Online.</p>
 <hr />
+<p>&nbsp;</p>
 <h1 id="fase-9-creacion-de-recursos-del-cluster">FASE 9 — Creación de Recursos del Cluster</h1>
+<p>&nbsp;</p>
 <p>⚠️ Todos los comandos de esta fase se ejecutan únicamente desde:</p>
 <div class="highlight"><pre><span></span><code>nodo1.laboratorio
 </code></pre></div>
 <hr />
-<h3 id="paso-1-crear-recurso-lvm-activate">Paso 1 — Crear recurso LVM-activate</h3>
-<div class="highlight"><pre><span></span><code>pcs<span class="w"> </span>resource<span class="w"> </span>create<span class="w"> </span>vg_datos_ha<span class="w"> </span><span class="se">\</span>
-ocf:heartbeat:LVM-activate<span class="w"> </span><span class="se">\</span>
-<span class="nv">vgname</span><span class="o">=</span>vg_datos_ha<span class="w"> </span><span class="se">\</span>
-<span class="nv">vg_access_mode</span><span class="o">=</span>tagging
+<p><strong>Crear recurso LVM-activate</strong></p>
+<div class="highlight"><pre><span></span><code>pcs<span class="w"> </span>resource<span class="w"> </span>create<span class="w"> </span>vg_datos_ha<span class="w"> </span>ocf:heartbeat:LVM-activate<span class="w"> </span><span class="nv">vgname</span><span class="o">=</span>vg_datos_ha<span class="w"> </span><span class="nv">vg_access_mode</span><span class="o">=</span>tagging
 </code></pre></div>
 <hr />
-<h3 id="paso-2-validar-recurso">Paso 2 — Validar recurso</h3>
+<p><strong>Validar recurso</strong></p>
 <div class="highlight"><pre><span></span><code>pcs<span class="w"> </span>resource<span class="w"> </span>config
 </code></pre></div>
 <hr />
-<h3 id="paso-3-crear-punto-de-montaje">Paso 3 — Crear punto de montaje</h3>
+<p><strong>Crear punto de montaje</strong></p>
 <p>Ejecutar en todos los nodos:</p>
 <div class="highlight"><pre><span></span><code>mkdir<span class="w"> </span>-p<span class="w"> </span>/datos
 </code></pre></div>
 <hr />
-<h3 id="paso-4-crear-recurso-filesystem">Paso 4 — Crear recurso Filesystem</h3>
-<div class="highlight"><pre><span></span><code>pcs<span class="w"> </span>resource<span class="w"> </span>create<span class="w"> </span>fs_datos<span class="w"> </span><span class="se">\</span>
-ocf:heartbeat:Filesystem<span class="w"> </span><span class="se">\</span>
-<span class="nv">device</span><span class="o">=</span><span class="s2">&quot;/dev/vg_datos_ha/lv_almacenamiento&quot;</span><span class="w"> </span><span class="se">\</span>
-<span class="nv">directory</span><span class="o">=</span><span class="s2">&quot;/datos&quot;</span><span class="w"> </span><span class="se">\</span>
-<span class="nv">fstype</span><span class="o">=</span><span class="s2">&quot;xfs&quot;</span>
+<p><strong>Crear recurso Filesystem</strong></p>
+<div class="highlight"><pre><span></span><code>pcs<span class="w"> </span>resource<span class="w"> </span>create<span class="w"> </span>fs_datos<span class="w"> </span>ocf:heartbeat:Filesystem<span class="w"> </span><span class="nv">device</span><span class="o">=</span><span class="s2">&quot;/dev/vg_datos_ha/lv_almacenamiento&quot;</span><span class="w"> </span><span class="nv">directory</span><span class="o">=</span><span class="s2">&quot;/datos&quot;</span><span class="w"> </span><span class="nv">fstype</span><span class="o">=</span><span class="s2">&quot;xfs&quot;</span>
 </code></pre></div>
 <hr />
-<h3 id="paso-5-crear-ip-virtual">Paso 5 — Crear IP Virtual</h3>
-<div class="highlight"><pre><span></span><code>pcs<span class="w"> </span>resource<span class="w"> </span>create<span class="w"> </span>vip_datos<span class="w"> </span><span class="se">\</span>
-ocf:heartbeat:IPaddr2<span class="w"> </span><span class="se">\</span>
-<span class="nv">ip</span><span class="o">=</span><span class="m">10</span>.0.0.100<span class="w"> </span><span class="se">\</span>
-<span class="nv">cidr_netmask</span><span class="o">=</span><span class="m">24</span>
+<p><strong>Crear IP Virtual</strong></p>
+<div class="highlight"><pre><span></span><code>pcs<span class="w"> </span>resource<span class="w"> </span>create<span class="w"> </span>vip_datos<span class="w"> </span>ocf:heartbeat:IPaddr2<span class="w"> </span><span class="nv">ip</span><span class="o">=</span><span class="m">10</span>.0.0.100<span class="w"> </span><span class="nv">cidr_netmask</span><span class="o">=</span><span class="m">24</span>
 </code></pre></div>
 <hr />
-<h3 id="paso-6-verificar-recursos-creados">Paso 6 — Verificar recursos creados</h3>
+<p><strong>Verificar recursos creados</strong></p>
 <div class="highlight"><pre><span></span><code>pcs<span class="w"> </span>resource<span class="w"> </span>show
 </code></pre></div>
 <hr />
+<p>&nbsp;</p>
 <h1 id="fase-10-agrupacion-de-recursos">FASE 10 — Agrupación de Recursos</h1>
-<h3 id="paso-1-crear-grupo">Paso 1 — Crear grupo</h3>
-<div class="highlight"><pre><span></span><code>pcs<span class="w"> </span>resource<span class="w"> </span>group<span class="w"> </span>add<span class="w"> </span>grupo_datos<span class="w"> </span><span class="se">\</span>
-vg_datos_ha<span class="w"> </span><span class="se">\</span>
-fs_datos<span class="w"> </span><span class="se">\</span>
-vip_datos
+<p>&nbsp;</p>
+<p><strong>Crear grupo</strong></p>
+<div class="highlight"><pre><span></span><code>pcs<span class="w"> </span>resource<span class="w"> </span>group<span class="w"> </span>add<span class="w"> </span>grupo_datos<span class="w"> </span>vg_datos_ha<span class="w"> </span>fs_datos<span class="w"> </span>vip_datos
 </code></pre></div>
 <hr />
-<h3 id="paso-2-verificar-grupo">Paso 2 — Verificar grupo</h3>
+<p><strong>Verificar grupo</strong></p>
 <div class="highlight"><pre><span></span><code>pcs<span class="w"> </span>resource<span class="w"> </span>status
 </code></pre></div>
 <p>Ejemplo esperado:</p>
@@ -7059,7 +7137,7 @@ vip_datos
     vip_datos
 </code></pre></div>
 <hr />
-<h3 id="paso-3-validar-estado-general">Paso 3 — Validar estado general</h3>
+<p><strong>Validar estado general</strong></p>
 <div class="highlight"><pre><span></span><code>pcs<span class="w"> </span>status
 </code></pre></div>
 <p>Ejemplo:</p>
@@ -7078,7 +7156,7 @@ Resource Group: grupo_datos
 </code></pre></div>
 <hr />
 <h1 id="fase-11-validacion-del-filesystem-compartido">FASE 11 — Validación del Filesystem Compartido</h1>
-<h3 id="paso-1-verificar-montaje">Paso 1 — Verificar montaje</h3>
+<p><strong>Verificar montaje</strong></p>
 <div class="highlight"><pre><span></span><code>df<span class="w"> </span>-h
 </code></pre></div>
 <p>Ejemplo:</p>
@@ -7088,37 +7166,36 @@ Resource Group: grupo_datos
 <div class="highlight"><pre><span></span><code>/datos
 </code></pre></div>
 <hr />
-<h3 id="paso-2-crear-archivo-de-prueba">Paso 2 — Crear archivo de prueba</h3>
+<p><strong>Crear archivo de prueba</strong></p>
 <div class="highlight"><pre><span></span><code>touch<span class="w"> </span>/datos/test_cluster.txt
 </code></pre></div>
 <hr />
-<h3 id="paso-3-validar-escritura">Paso 3 — Validar escritura</h3>
+<p><strong>Validar escritura</strong></p>
 <div class="highlight"><pre><span></span><code>ls<span class="w"> </span>-l<span class="w"> </span>/datos
 </code></pre></div>
 <hr />
-<h3 id="paso-4-validar-ip-virtual">Paso 4 — Validar IP Virtual</h3>
+<p><strong>Validar IP Virtual</strong></p>
 <div class="highlight"><pre><span></span><code>ip<span class="w"> </span>addr
 </code></pre></div>
-<p>Ejemplo:</p>
-<div class="highlight"><pre><span></span><code>10.0.0.100
-</code></pre></div>
 <hr />
-<h3 id="paso-5-probar-conectividad">Paso 5 — Probar conectividad</h3>
+<p><strong>Probar conectividad</strong></p>
 <p>Desde otro servidor:</p>
 <div class="highlight"><pre><span></span><code>ping<span class="w"> </span><span class="m">10</span>.0.0.100
 </code></pre></div>
 <hr />
+<p>&nbsp;</p>
 <h1 id="fase-12-prueba-de-failover">FASE 12 — Prueba de Failover</h1>
-<h3 id="paso-1-identificar-nodo-activo">Paso 1 — Identificar nodo activo</h3>
+<p>&nbsp;</p>
+<p><strong>Identificar nodo activo</strong></p>
 <div class="highlight"><pre><span></span><code>pcs<span class="w"> </span>status
 </code></pre></div>
 <hr />
-<h3 id="paso-2-colocar-nodo-en-standby">Paso 2 — Colocar nodo en standby</h3>
+<p><strong>Paso 2 — Colocar nodo en standby</strong></p>
 <p>Ejemplo:</p>
 <div class="highlight"><pre><span></span><code>pcs<span class="w"> </span>node<span class="w"> </span>standby<span class="w"> </span>nodo1.laboratorio
 </code></pre></div>
 <hr />
-<h3 id="paso-3-verificar-migracion-automatica">Paso 3 — Verificar migración automática</h3>
+<p><strong>Verificar migración automática</strong></p>
 <div class="highlight"><pre><span></span><code>pcs<span class="w"> </span>status
 </code></pre></div>
 <p>Validar:</p>
@@ -7128,18 +7205,18 @@ Resource Group: grupo_datos
 <li>IP Virtual activa en nuevo nodo.</li>
 </ul>
 <hr />
-<h3 id="paso-4-validar-acceso-a-datos">Paso 4 — Validar acceso a datos</h3>
+<p><strong>Validar acceso a datos</strong></p>
 <div class="highlight"><pre><span></span><code>ls<span class="w"> </span>-l<span class="w"> </span>/datos
 </code></pre></div>
 <p>Debe visualizarse:</p>
 <div class="highlight"><pre><span></span><code>test_cluster.txt
 </code></pre></div>
 <hr />
-<h3 id="paso-5-regresar-nodo-al-cluster">Paso 5 — Regresar nodo al Cluster</h3>
+<p><strong>Regresar nodo al Cluster</strong></p>
 <div class="highlight"><pre><span></span><code>pcs<span class="w"> </span>node<span class="w"> </span>unstandby<span class="w"> </span>nodo1.laboratorio
 </code></pre></div>
 <hr />
-<h3 id="paso-6-verificar-reintegracion">Paso 6 — Verificar reintegración</h3>
+<p><strong>Verificar reintegración</strong></p>
 <div class="highlight"><pre><span></span><code>pcs<span class="w"> </span>status
 </code></pre></div>
 <p>Todos los nodos deben aparecer:</p>
@@ -7147,54 +7224,55 @@ Resource Group: grupo_datos
 </code></pre></div>
 <hr />
 <h1 id="fase-13-operacion-diaria">FASE 13 — Operación Diaria</h1>
-<h3 id="estado-general-del-cluster">Estado general del Cluster</h3>
+<p><strong>Estado general del Cluster</strong></p>
 <div class="highlight"><pre><span></span><code>pcs<span class="w"> </span>status
 </code></pre></div>
 <hr />
-<h3 id="estado-detallado">Estado detallado</h3>
+<p><strong>Estado detallado</strong></p>
 <div class="highlight"><pre><span></span><code>pcs<span class="w"> </span>status<span class="w"> </span>--full
 </code></pre></div>
 <hr />
-<h3 id="ver-recursos">Ver recursos</h3>
+<p><strong>Ver recursos del cluster</strong></p>
 <div class="highlight"><pre><span></span><code>pcs<span class="w"> </span>resource<span class="w"> </span>show
 </code></pre></div>
 <hr />
-<h3 id="ver-propiedades">Ver propiedades</h3>
+<p><strong>Ver propiedades del cluster</strong></p>
 <div class="highlight"><pre><span></span><code>pcs<span class="w"> </span>property<span class="w"> </span>config
 </code></pre></div>
 <hr />
-<h3 id="ver-stonith">Ver STONITH</h3>
+<p><strong>Ver STONITH</strong></p>
 <div class="highlight"><pre><span></span><code>pcs<span class="w"> </span>stonith<span class="w"> </span>config
 </code></pre></div>
 <hr />
-<h3 id="ver-quorum">Ver quorum</h3>
+<p><strong>Ver quorum</strong></p>
 <div class="highlight"><pre><span></span><code>pcs<span class="w"> </span>quorum<span class="w"> </span>status
 </code></pre></div>
 <hr />
-<h3 id="ver-configuracion-completa">Ver configuración completa</h3>
+<p><strong>Ver configuración completa</strong></p>
 <div class="highlight"><pre><span></span><code>pcs<span class="w"> </span>config
 </code></pre></div>
 <hr />
-<h3 id="poner-nodo-en-mantenimiento">Poner nodo en mantenimiento</h3>
+<p><strong>Poner nodo en mantenimiento</strong></p>
 <div class="highlight"><pre><span></span><code>pcs<span class="w"> </span>node<span class="w"> </span>standby<span class="w"> </span>&lt;nodo&gt;
 </code></pre></div>
 <hr />
-<h3 id="regresar-nodo-a-produccion">Regresar nodo a producción</h3>
+<p><strong>Regresar nodo a producción</strong></p>
 <div class="highlight"><pre><span></span><code>pcs<span class="w"> </span>node<span class="w"> </span>unstandby<span class="w"> </span>&lt;nodo&gt;
 </code></pre></div>
 <hr />
-<h3 id="reiniciar-recurso">Reiniciar recurso</h3>
+<p><strong>Reiniciar recurso</strong></p>
 <div class="highlight"><pre><span></span><code>pcs<span class="w"> </span>resource<span class="w"> </span>restart<span class="w"> </span>&lt;recurso&gt;
 </code></pre></div>
 <hr />
-<h3 id="limpiar-recurso-fallido">Limpiar recurso fallido</h3>
+<p><strong>Limpiar recurso fallido</strong></p>
 <div class="highlight"><pre><span></span><code>pcs<span class="w"> </span>resource<span class="w"> </span>cleanup
 </code></pre></div>
 <hr />
-<h3 id="limpiar-recurso-especifico">Limpiar recurso específico</h3>
+<p><strong>Limpiar recurso específico</strong></p>
 <div class="highlight"><pre><span></span><code>pcs<span class="w"> </span>resource<span class="w"> </span>cleanup<span class="w"> </span>&lt;recurso&gt;
 </code></pre></div>
 <hr />
+<p>&nbsp;</p>
 <h1 id="fase-14-troubleshooting">FASE 14 — Troubleshooting</h1>
 <h3 id="ver-eventos-del-cluster">Ver eventos del Cluster</h3>
 <div class="highlight"><pre><span></span><code>pcs<span class="w"> </span>status<span class="w"> </span>--full
@@ -7236,18 +7314,8 @@ Resource Group: grupo_datos
 <div class="highlight"><pre><span></span><code>ls<span class="w"> </span>-l<span class="w"> </span>/dev/watchdog
 </code></pre></div>
 <hr />
-<h3 id="verificar-discos-iscsi">Verificar discos iSCSI</h3>
-<div class="highlight"><pre><span></span><code>lsblk
-</code></pre></div>
-<hr />
 <h3 id="verificar-sesiones-iscsi">Verificar sesiones iSCSI</h3>
 <div class="highlight"><pre><span></span><code>iscsiadm<span class="w"> </span>-m<span class="w"> </span>session
-</code></pre></div>
-<hr />
-<h3 id="verificar-lvm">Verificar LVM</h3>
-<div class="highlight"><pre><span></span><code>pvs
-vgs
-lvs
 </code></pre></div>
 <hr />
 <h3 id="verificar-montaje">Verificar montaje</h3>
